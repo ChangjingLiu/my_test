@@ -107,6 +107,7 @@ class ASSRobot(Sofa.Prefab):
         angle0.addObject('ArticulatedHierarchyContainer', printLog=False)
 
 
+
 ###########################################################################
         # Servo body
         # servoBody = self.addChild('ServoBody')
