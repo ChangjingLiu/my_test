@@ -56,38 +56,50 @@ class ServoMotor(Sofa.Prefab):
         # Servo body
         servoBody = self.addChild('ServoBody')
         mechanicalmodel = servoBody.addChild("MechanicalModel")
-        mechanicalmodel.addObject('MeshGmshLoader',
-                                  name='loader',
-                                  rotation=list(self.rotation.value),
-                                  translation=list(self.translation.value),
-                                  filename='data/Ass_robot/Axis_2.msh')
+        # mechanicalmodel.addObject('MeshGmshLoader',
+        #                           name='loader',
+        #                           rotation=list(self.rotation.value),
+        #                           translation=list(self.translation.value),
+        #                           filename='data/Ass_robot/Axis_2.msh')
         # mechanicalmodel.addObject('TetrahedronSetTopologyContainer',
         #                           src='@loader',
         #                           name='container')
         mechanicalmodel.addObject('MechanicalObject', name='dofs',
                                   template='Rigid3d',
-                                  position=[[0., 0., 0., 0., 0., 0., 1.]],
+                                  # position=[[0., 0., 0., 0., 0., 0., 1.]],
                                   translation=list(self.translation.value),
                                   rotation=list(self.rotation.value),
                                   scale3d=list(self.scale3d.value))
         mechanicalmodel.addObject('FixedConstraint')
-        mechanicalmodel.addObject('UniformMass',name="mass", totalMass=1)
+        mechanicalmodel.addObject('UniformMass',name="mass", vertexMass=[1, 1, [1., 0., 0., 0., 1., 0., 0., 0., 1.]])
 
 
         visual = servoBody.addChild('VisualModel')
-        visual.addObject('MeshGmshLoader', name='loader', filename='data/Ass_robot/Axis_2.msh')
+        visual.addObject('MeshSTLLoader', name='loader', filename='data/Ass_robot/Axis_2.STL')
         visual.addObject('MeshTopology', src='@loader')
         visual.addObject('OglModel', name='renderer',color=[0.15, 0.45, 0.75, 0.7], writeZTransparent=True)
         visual.addObject('RigidMapping',input=mechanicalmodel.dofs.getLinkPath(),
                           output=visual.renderer.getLinkPath())
-        #
+        #coliision
+        objectCollis = servoBody.addChild('collision')
+        objectCollis.addObject('MeshGmshLoader',
+                                  name='loader',
+                                  rotation=list(self.rotation.value),
+                                  translation=list(self.translation.value),
+                                  filename='data/Ass_robot/Axis_2.msh')
+        objectCollis.addObject('MeshTopology', src="@loader")
+        objectCollis.addObject('MechanicalObject')
+        objectCollis.addObject('TriangleCollisionModel',)
+        objectCollis.addObject('LineCollisionModel', )
+        objectCollis.addObject('PointCollisionModel', )
+        objectCollis.addObject('RigidMapping',input=mechanicalmodel.dofs.getLinkPath(),)
 
         # # Servo wheel
         angle = self.addChild('Articulation')
         angle.addObject('MechanicalObject', name='dofs', template='Vec1', position=[[0]],
-                        rest_position=self.getData('angleIn').getLinkPath()
+                        # rest_position=self.getData('angleIn').getLinkPath()
                         )
-        angle.addObject('RestShapeSpringsForceField', points=0, stiffness=1e9)
+        # angle.addObject('RestShapeSpringsForceField', points=0, stiffness=1e9)
         angle.addObject('UniformMass', totalMass=0.01)
 
         servoWheel = angle.addChild('ServoWheel')
@@ -149,13 +161,13 @@ def createScene(rootNode):
     # animate(animation, {'target': scene.Simulation.ServoMotor}, duration=10., mode='loop')
     # scene.Simulation.ServoMotor.Articulation.ServoWheel.dofs.showObject = True
 
-    box1 = FixingBox(scene.Modelling.ServoMotor,
-                     scene.Modelling.ServoMotor.ServoBody.MechanicalModel,
-                     name="box1",
-                     translation=[0.0, -10.0, 0.0],
-                     scale=[5., 5., 5.])
-    box1.BoxROI.drawBoxes = True
-    scene.Simulation.addChild(scene.Modelling.ServoMotor.box1)
+    # box1 = FixingBox(scene.Modelling.ServoMotor,
+    #                  scene.Modelling.ServoMotor.ServoBody.MechanicalModel,
+    #                  name="box1",
+    #                  translation=[0.0, 0.0, 0.0],
+    #                  scale=[5., 5., 5.])
+    # box1.BoxROI.drawBoxes = True
+    # scene.Simulation.addChild(scene.Modelling.ServoMotor.box1)
     return scene
 
 if __name__ == '__main__':

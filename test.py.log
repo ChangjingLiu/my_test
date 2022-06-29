@@ -25,3 +25,12 @@
 --- NEW SESSION: 27/06/2022 20:20:16 ---
 /Modelling/ServoMotor/box1.time = 4.84
 /Modelling/ServoMotor/box1.animate = 1
+
+--- NEW SESSION: 29/06/2022 16:23:25 ---
+/Modelling/ServoMotor/ServoBody/MechanicalModel/mass.showGravityCenter = 1
+/Modelling/ServoMotor/ServoBody/MechanicalModel/mass.showInitialCenterOfGravity = 1
+
+--- NEW SESSION: 29/06/2022 16:24:30 ---
+/Modelling/ServoMotor/ServoBody/MechanicalModel/mass.showX0 = 1
+/Modelling/ServoMotor/ServoBody/MechanicalModel/mass.showInitialCenterOfGravity = 1
+/Modelling/ServoMotor/ServoBody/MechanicalModel/mass.showGravityCenter = 1
