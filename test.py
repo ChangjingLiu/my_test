@@ -114,14 +114,14 @@ class ServoMotor(Sofa.Prefab):
                        template='Rigid3',
                        showObject=True,
                        showObjectScale=5,
-                       translation=[10, 0, 0])
+                       translation=[0, 0, 10])
         ServoArm.addObject('UniformMass', totalMass=0.01)
         ServoArm.addObject('RigidRigidMapping', name='mapping', input="@../dofs", index=1)
         #
         # # #visual model
         visual1=ServoArm.addChild('VisualModel')
         visual1.addObject('MeshSTLLoader', name='loader', filename='data/Ass_robot/upperArm_Long.STL',
-                          translation=[0.0, 0.0, 0.0],
+                          translation=[0.0, 0.0, -10.0],
                           rotation=[0.0, 0.0, 0.0])
         visual1.addObject('MeshTopology', src='@loader')
         visual1.addObject('OglModel',color=[0.5, 0.45, 0.75, 0.7], writeZTransparent=True)
