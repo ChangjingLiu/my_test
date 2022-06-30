@@ -1,12 +1,49 @@
-import os
-import sys
+import os, sys
 import Sofa
 from stlib3.scene import Scene
-from stlib3.physics.collision import CollisionMesh
+
 dirPath = os.path.dirname(os.path.abspath(__file__)) + '/'
+from stlib3.visuals import VisualModel
+from fixingbox import FixingBox
 
 
-class ASSRobot(Sofa.Prefab):
+class ServoMotor(Sofa.Prefab):
+    '''A S90 servo motor
+
+    This prefab is implementing a S90 servo motor.
+    https://servodatabase.com/servo/towerpro/sg90
+
+    The prefab ServoMotor is composed of:
+    - a visual model
+    - a mechanical model composed two rigids. One rigid is for the motor body
+      while the other is implementing the servo rotating wheel.
+
+    The prefab has the following parameters:
+    - translation           to change default location of the servo (default [0.0,0.0,0.0])
+    - rotation              to change default rotation of the servo (default [0.0,0.0,0.0,1])
+    - scale                 to change default scale of the servo (default 1)
+    - showServo             to control wether a visual model of the motor is added (default True)
+    - showWheel             to control wether the rotation axis of the motor is displayed (default False)
+
+    The prefab have the following property:
+    - angle         use this to specify the angle of rotation of the servo motor
+    - angleLimits   use this to set a min and max value for the servo angle rotation
+    - position      use this to specify the position of the servo motor
+
+    Example of use in a Sofa scene:
+
+    def addScene(root):
+        ...
+        servo = ServoMotor(root)
+
+        ## Direct access to the components
+        servo.angle.value = 1.0
+    '''
+    properties = [
+        {'name': 'name', 'type': 'string', 'help': 'Node name', 'default': 'ServoMotor'},
+        {'name': 'rotation', 'type': 'Vec3d', 'help': 'Rotation', 'default': [0.0, 0.0, 0.0]},
+        {'name': 'translation', 'type': 'Vec3d', 'help': 'Translation', 'default': [0.0, 0.0, 0.0]},
+        {'name': 'scale3d', 'type': 'Vec3d', 'help': 'Scale 3d', 'default': [1.0, 1.0, 1.0]}]
 
     def __init__(self, *args, **kwargs):
         Sofa.Prefab.__init__(self, *args, **kwargs)
@@ -20,152 +57,167 @@ class ASSRobot(Sofa.Prefab):
         self.addData(name='angleIn', group='S90Properties', help='angle of rotation (in radians)', type='float',
                      value=0)
 
-        # Axis
-        # mechanical model, index:0
-        Axis2 = self.addChild('Axis2')
-        Axis2.addObject('MechanicalObject', name='dofs', template='Rigid3',
-                            position=[[0., 0., 0., 0., 0., 0., 1.]],
-                            translation=[0.,0.,0.],
-                            rotation=[0.,0.,0.],
-                            scale3d=[1.,1.,1.])
-        Axis2.addObject('FixedConstraint', indices=0)
-        Axis2.addObject('UniformMass', totalMass=0.01)
-        # visual model
-        visual_Axis2 = Axis2.addChild('VisualModel')
-        visual_Axis2.addObject('MeshSTLLoader', name='loader', filename='data/Ass_robot/Axis_2.STL')
-        visual_Axis2.addObject('MeshTopology', src='@loader')
-        visual_Axis2.addObject('OglModel', color=[0.15, 0.45, 0.75, 0.7], writeZTransparent=True)
-        visual_Axis2.addObject('RigidMapping', index=0)
+        # 轴2 Axis2
+        axis2 = self.addChild('Axis2')
+        axis2mechanicalModel = axis2.addChild("MechanicalModel")
+        axis2mechanicalModel.addObject('MechanicalObject', name='dofs',
+                                       template='Rigid3d',
+                                       position=[[0., 0., 0., 0., 0., 0., 1.]],
+                                       translation=list(self.translation.value),
+                                       rotation=list(self.rotation.value),
+                                       scale3d=list(self.scale3d.value), )
+        axis2mechanicalModel.addObject('FixedConstraint')
+        axis2mechanicalModel.addObject('UniformMass', name="mass", totalMass=0.1)
 
-        # # Articulation:0->1
-        # Articulation01 = self.addChild('Articulation01')
-        # Articulation01.addObject('MechanicalObject', name='dofs',
-        #                          template='Vec1', position=[[0]],
-        #                 # rest_position=self.getData('angleIn').getLinkPath()
-        #                          )
-        # Articulation01.addObject('RestShapeSpringsForceField', points=0, stiffness=1e9)
-        # Articulation01.addObject('UniformMass', totalMass=0.01)
+        visualModel = axis2.addChild('VisualModel')
+        visualModel.addObject('MeshSTLLoader', name='loader', filename='data/Ass_robot/Axis_2.STL')
+        visualModel.addObject('MeshTopology', src='@loader')
+        visualModel.addObject('OglModel', name='renderer', color=[0.15, 0.45, 0.75, 0.7], writeZTransparent=True)
+        visualModel.addObject('RigidMapping',
+                              input=axis2mechanicalModel.dofs.getLinkPath(),
+                              output=visualModel.renderer.getLinkPath(), )
 
-        # angle0
-        # 链接Axis2和upperArmLong
-        angle0 = self.addChild('Articulation')
-        angle0.addObject('MechanicalObject', name='dofs', template='Vec1', position=[[0]])
+        # Articulation0
+        # 关节 angle0 (非实体部分)
+        angle0 = self.addChild('Articulation0')
+        angle0.addObject('MechanicalObject', name='dofs', template='Vec1', position=[[0]],
+                         # rest_position=self.getData('angleIn').getLinkPath()
+                         )
         angle0.addObject('RestShapeSpringsForceField', points=0, stiffness=1e9)
         angle0.addObject('UniformMass', totalMass=0.01)
 
-        # upperArmLong
-        upperArmLong = angle0.addChild('upperArmLong')
-        upperArmLong.addObject('MechanicalObject', name='dofs', template='Rigid3',
-                             position=[[0., 0., 0., 0., 0., 0., 1.], [0., 0., 0., 0., 0., 0., 1.]], showObjectScale=20,
-                             translation=[0.,0.,0.], rotation=[0.,0.,0.],
-                             scale3d=[1.,1.,1.])
-        upperArmLong.addObject('ArticulatedSystemMapping', input1="@../dofs", input2="@../../Axis2/dofs", output="@./")
+        # 关节轮 armWheel0 (非实体部分)
+        armWheel0 = angle0.addChild('ArmWheel0')
+        armWheel0.addObject('MechanicalObject', name='dofs', template='Rigid3',
+                           position=[[0., 0., 0., 0., 0., 0., 1.], [0., 0., 0., 0., 0., 0., 1.]],
+                           showObjectScale=10,
+                           showObject=True,
+                           translation=list(self.translation.value),
+                           rotation=list(self.rotation.value),
+                           scale3d=list(self.scale3d.value))
+        armWheel0.addObject('ArticulatedSystemMapping',
+                           input1="@../dofs",
+                           input2=axis2mechanicalModel.dofs.getLinkPath(),
+                           output="@./")
 
+        # 上臂长 upperArmLong
+        upperArmLong = armWheel0.addChild('UpperArmLong')
+        upperArmLongMechanicalModel = upperArmLong.addChild("MechanicalModel")
+        upperArmLongMechanicalModel.addObject('MechanicalObject',
+                                              name='dofs',
+                                              size=1,
+                                              template='Rigid3d',
+                                              showObject=True,
+                                              showObjectScale=10,
+                                              translation=[0, 0, 30.58])
+        upperArmLongMechanicalModel.addObject('UniformMass', totalMass=0.01)
+        upperArmLongMechanicalModel.addObject('RigidRigidMapping', name='mapping',
+                                              input="@../../dofs",
+                                              output="@./",
+                                              index=1)
+        # visual model
+        upperArmLongVisualModel = upperArmLong.addChild('VisualModel')
+        upperArmLongVisualModel.addObject('MeshSTLLoader', name='loader', filename='data/Ass_robot/upperArm_Long.STL',
+                                          translation=[0.0, 0.0, -30.58],
+                                          rotation=[0.0, 0.0, 0.0])
+        upperArmLongVisualModel.addObject('MeshTopology', src='@loader')
+        upperArmLongVisualModel.addObject('OglModel', name='renderer', color=[0.5, 0.45, 0.75, 0.7],
+                                          writeZTransparent=True)
+        upperArmLongVisualModel.addObject('RigidMapping',
+                                          input=upperArmLongMechanicalModel.dofs.getLinkPath(),
+                                          output=upperArmLongVisualModel.renderer.getLinkPath(), )
 
-
-
-        # ArticulatedSystemMapping 建立系统的关节和全局运动的对应关系。
-        # input1链接到包含关节自由度 (Vec1d) 的 MechanicalObject
-        # output链接到 MechanicalObject，其中包含每个刚体 (Rigid3d) 的全局坐标系中的映射自由度，即关节系统的每个部分
-        # angle0.addObject('ArticulatedSystemMapping', input1="@../dofs", input2="@../../Axis2/dofs",
-        #                      output="@./")
-
-
-
-        # # visual model
-        # visual_upperArmLong = upperArmLong.addChild('VisualModel')
-        # visual_upperArmLong.addObject('MeshSTLLoader', name='loader', filename='data/Ass_robot/upperArm_Long.STL')
-        # visual_upperArmLong.addObject('MeshTopology', src='@loader')
-        # visual_upperArmLong.addObject('OglModel',
-        #                               color=[0.15, 0.45, 0.75, 0.7],
-        #                               writeZTransparent=True)
-        # visual_upperArmLong.addObject('RigidMapping', index=0)
-        #
-        # # # Collision Object for the Cube
-        # # CollisionMesh(upperArmLong,
-        # #               surfaceMeshFileName='data/Ass_robot/upperArm_Long.STL', name='CollisionModel', rotation=[0.0, 0.0, 0.0],
-        # #               collisionGroup=1)
-        # collisionmodel = upperArmLong.addChild('CollisionModel')
-        # collisionmodel.addObject("MeshSTLLoader", name="loader", filename='data/Ass_robot/upperArm_Long.STL',
-        #                          rotation=[0,0,0], translation=[0,0,0])
-        # collisionmodel.addObject('MeshTopology', src="@loader")
-        # collisionmodel.addObject('MechanicalObject')
-        # collisionmodel.addObject('PointCollisionModel')
-        # collisionmodel.addObject('LineCollisionModel')
-        # collisionmodel.addObject('TriangleCollisionModel')
-        # collisionmodel.addObject('RigidMapping')
-
-
-
-        # articulationCenter
         articulationCenter = angle0.addChild('ArticulationCenter')
         articulationCenter.addObject('ArticulationCenter', parentIndex=0, childIndex=1, posOnParent=[0., 0., 0.],
                                      posOnChild=[0., 0., 0.])
-        articulation = articulationCenter.addChild('Articulations')
-        articulation.addObject('Articulation', translation=False, rotation=True, rotationAxis=[1, 0, 0],
-                               articulationIndex=0)
+        articulations = articulationCenter.addChild('Articulations')
+        articulations.addObject('Articulation', translation=False, rotation=True, rotationAxis=[0, 1, 0],
+                                articulationIndex=0)
         angle0.addObject('ArticulatedHierarchyContainer', printLog=False)
 
 
 
 
-###########################################################################
-        # Servo body
-        # servoBody = self.addChild('ServoBody')
-        # servoBody.addObject('MechanicalObject', name='dofs', template='Rigid3', position=[[0., 0., 0., 0., 0., 0., 1.]],
-        #                             translation=list(self.translation.value),rotation=list(self.rotation.value),scale3d=list(self.scale3d.value))
-        # servoBody.addObject('FixedConstraint', indices=0)
-        # servoBody.addObject('UniformMass', totalMass=0.01)
-        #
-        # visual = servoBody.addChild('VisualModel')
-        # visual.addObject('MeshSTLLoader', name='loader', filename=dirPath+'data/mesh/SG90_servomotor.stl')
-        # visual.addObject('MeshTopology', src='@loader')
-        # visual.addObject('OglModel', color=[0.15, 0.45, 0.75, 0.7], writeZTransparent=True)
-        # visual.addObject('RigidMapping', index=0)
-
-        # Servo wheel
-        # angle = self.addChild('Articulation')
-        # angle.addObject('MechanicalObject', name='dofs', template='Vec1', position=[[0]], rest_position=self.getData('angleIn').getLinkPath())
+        # 关节 angle1 (非实体部分)
+        angle1 = self.addChild('Articulation1')
+        angle1.addObject('MechanicalObject', name='dofs', template='Vec1', position=[[0]],
+                         # rest_position=self.getData('angleIn').getLinkPath()
+                         )
         # angle.addObject('RestShapeSpringsForceField', points=0, stiffness=1e9)
-        # angle.addObject('UniformMass', totalMass=0.01)
-        #
-        # servoWheel = angle.addChild('ServoWheel')
-        # servoWheel.addObject('MechanicalObject', name='dofs', template='Rigid3', position=[[0., 0., 0., 0., 0., 0., 1.],[0., 0., 0., 0., 0., 0., 1.]], showObjectScale=20,
-        #                             translation=list(self.translation.value),rotation=list(self.rotation.value),scale3d=list(self.scale3d.value))
-        # servoWheel.addObject('ArticulatedSystemMapping', input1="@../dofs", input2="@../../ServoBody/dofs", output="@./")
-        #
-        # articulationCenter = angle.addChild('ArticulationCenter')
-        # articulationCenter.addObject('ArticulationCenter', parentIndex=0, childIndex=1, posOnParent=[0., 0., 0.], posOnChild=[0., 0., 0.])
-        # articulation = articulationCenter.addChild('Articulations')
-        # articulation.addObject('Articulation', translation=False, rotation=True, rotationAxis=[1, 0, 0], articulationIndex=0)
-        # angle.addObject('ArticulatedHierarchyContainer', printLog=False)
+        angle1.addObject('UniformMass', totalMass=0.01)
+
+        #armWheel1
+        armWheel1 = angle1.addChild('ArmWheel1')
+        armWheel1.addObject('MechanicalObject', name='dofs', template='Rigid3',
+                            position=[[0., 0., 0., 0., 0., 0., 1.], [0., 0., 0., 0., 0., 0., 1.]],
+                            showObjectScale=10,
+                            showObject=True,
+                            translation=list(self.translation.value),
+                            rotation=list(self.rotation.value),
+                            scale3d=list(self.scale3d.value))
+        armWheel1.addObject('ArticulatedSystemMapping',
+                            input1="@../dofs",
+                            input2=upperArmLongMechanicalModel.dofs.getLinkPath(),
+                            output="@./")
+
+        # 上臂短 upperArmShort
+        upperArmShort = armWheel1.addChild('UpperArmShort')
+        upperArmShortMechanicalModel = upperArmShort.addChild("MechanicalModel")
+        upperArmShortMechanicalModel.addObject('MechanicalObject',
+                                              name='dofs',
+                                              size=1,
+                                              template='Rigid3d',
+                                              showObject=True,
+                                              showObjectScale=10,
+                                              translation=[0, 0, 30.58])
+        upperArmShortMechanicalModel.addObject('UniformMass', totalMass=0.01)
+        upperArmShortMechanicalModel.addObject('RigidRigidMapping', name='mapping',
+                                              input="@../../dofs",
+                                              output="@./",
+                                              index=1)
+
+        articulationCenter1 = angle1.addChild('ArticulationCenter')
+        articulationCenter1.addObject('ArticulationCenter', parentIndex=1, childIndex=2, posOnParent=[0., 0., 0.],
+                                     posOnChild=[0., 0., 0.])
+        articulations1 = articulationCenter1.addChild('Articulations')
+        articulations1.addObject('Articulation', translation=False, rotation=True, rotationAxis=[0, 1, 0],
+                                articulationIndex=1)
+        angle1.addObject('ArticulatedHierarchyContainer', printLog=False)
 
         # The output
-        # self.addData(name='angleOut', group='S90Properties', help='angle of rotation (in degree)', type='float', value=angle.dofs.getData('position').getLinkPath())
+        self.addData(name='angleOut', group='S90Properties', help='angle of rotation (in degree)', type='float',
+                     value=angle0.dofs.getData('position').getLinkPath())
 
 
 def createScene(rootNode):
     import math
     from splib3.animation import animate
 
-    # def animation(target, factor):
-    #     target.angleIn.value = math.cos(factor * 2 * math.pi)
+    def animation(target, factor):
+        target.angleIn.value = math.cos(factor * 2 * math.pi)
 
-    scene = Scene(rootNode, plugins=['SofaConstraint', 'SofaGeneralRigid', 'SofaOpenglVisual', 'SofaRigid'],
-                  iterative=False)
+    scene = Scene(rootNode, plugins=['SofaConstraint', 'SofaGeneralRigid', 'SofaOpenglVisual', 'SofaRigid',
+                                     ], iterative=False)
     scene.addMainHeader()
     scene.addObject('DefaultVisualManagerLoop')
     scene.addObject('FreeMotionAnimationLoop')
     scene.addObject('GenericConstraintSolver', maxIterations=1e3, tolerance=1e-5)
     scene.Simulation.addObject('GenericConstraintCorrection')
-
+    scene.Settings.mouseButton.stiffness = 0.1
     scene.dt = 0.01
     scene.gravity = [0., -9810., 0.]
-    scene.Modelling.addChild(ASSRobot(name="AssRobot"))
-    scene.Simulation.addChild(scene.Modelling.AssRobot)
+    scene.Modelling.addChild(ServoMotor(name="ServoMotor"))
+    scene.Simulation.addChild(scene.Modelling.ServoMotor)
     # animate(animation, {'target': scene.Simulation.ServoMotor}, duration=10., mode='loop')
-    # scene.Simulation.AssRobot.Articulation.upperArmLong.dofs.showObject = True
+    # scene.Simulation.ServoMotor.Articulation.ServoWheel.dofs.showObject = True
 
+    # box1 = FixingBox(scene.Modelling.ServoMotor,
+    #                  scene.Modelling.ServoMotor.ServoBody.MechanicalModel,
+    #                  name="box1",
+    #                  translation=[0.0, 0.0, 0.0],
+    #                  scale=[5., 5., 5.])
+    # box1.BoxROI.drawBoxes = True
+    # scene.Simulation.addChild(scene.Modelling.ServoMotor.box1)
     return scene
 
 

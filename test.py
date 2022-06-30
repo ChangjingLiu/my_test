@@ -81,18 +81,18 @@ class ServoMotor(Sofa.Prefab):
         visual.addObject('RigidMapping',input=mechanicalmodel.dofs.getLinkPath(),
                           output=visual.renderer.getLinkPath())
         #coliision
-        objectCollis = servoBody.addChild('collision')
-        objectCollis.addObject('MeshGmshLoader',
-                                  name='loader',
-                                  rotation=list(self.rotation.value),
-                                  translation=list(self.translation.value),
-                                  filename='data/Ass_robot/Axis_2.msh')
-        objectCollis.addObject('MeshTopology', src="@loader")
-        objectCollis.addObject('MechanicalObject')
-        objectCollis.addObject('TriangleCollisionModel',)
-        objectCollis.addObject('LineCollisionModel', )
-        objectCollis.addObject('PointCollisionModel', )
-        objectCollis.addObject('RigidMapping',input=mechanicalmodel.dofs.getLinkPath(),)
+        # objectCollis = servoBody.addChild('collision')
+        # objectCollis.addObject('MeshGmshLoader',
+        #                           name='loader',
+        #                           rotation=list(self.rotation.value),
+        #                           translation=list(self.translation.value),
+        #                           filename='data/Ass_robot/Axis_2.msh')
+        # objectCollis.addObject('MeshTopology', src="@loader")
+        # objectCollis.addObject('MechanicalObject')
+        # objectCollis.addObject('TriangleCollisionModel',)
+        # objectCollis.addObject('LineCollisionModel', )
+        # objectCollis.addObject('PointCollisionModel', )
+        # objectCollis.addObject('RigidMapping',input=mechanicalmodel.dofs.getLinkPath(),)
 
         # # Servo wheel
         angle = self.addChild('Articulation')

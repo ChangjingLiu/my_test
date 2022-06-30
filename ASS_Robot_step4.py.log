@@ -7,3 +7,46 @@
 /Simulation/AssRobot/Axis2/UniformMass.showGravityCenter = 1
 /Simulation/AssRobot/Axis2/UniformMass.showX0 = 1
 /Simulation/AssRobot/Axis2/UniformMass.showInitialCenterOfGravity = 1
+
+--- NEW SESSION: 29/06/2022 22:13:00 ---
+/Modelling/ServoMotor/Articulation/dofs.showVectors = 1
+/Modelling/ServoMotor/Articulation/dofs.showVectorsScale = 30
+/Modelling/ServoMotor/Articulation/dofs.showColor = 1 1 1 1
+/Modelling/ServoMotor/Articulation/dofs.showIndices = 1
+/Modelling/ServoMotor/Articulation/dofs.showIndicesScale = 30
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.showVectorsScale = 30
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.showColor = 1 1 1 1
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.showVectors = 1
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.showIndices = 1
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.showIndicesScale = 30
+/Modelling/ServoMotor/Articulation/ArmWheel/ServoArm/dofs.showVectors = 1
+/Modelling/ServoMotor/Articulation/ArmWheel/ServoArm/dofs.showColor = 1 1 1 1
+/Modelling/ServoMotor/Articulation/ArmWheel/ServoArm/dofs.showIndices = 1
+/Modelling/ServoMotor/Articulation/ArmWheel/ServoArm/dofs.showColor = 1 1 1 1
+/Modelling/ServoMotor/Articulation/ArmWheel/ServoArm/dofs.showVectors = 0
+/Modelling/ServoMotor/Articulation/ArmWheel/ServoArm/dofs.velocity = -1.157 0 -0.269846 0 0.118805 0
+/Modelling/ServoMotor/Articulation/ArmWheel/ServoArm/dofs.free_velocity = -1.15668 0 -0.27122 0 0.118805 0
+/Modelling/ServoMotor/Articulation/ArmWheel/ServoArm/dofs.showObject = 0
+/Modelling/ServoMotor/Articulation/ArmWheel/ServoArm/dofs.showColor = 1 1 1 1
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.force = 0 0 0 0 0 0 0 -98.1 0 -701.82 0 685.427
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.dforce(V_DERIV) = 0 0 0 0 0 0 0 0 0 0.814322 0 0.833797
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.showColor = 1 1 1 1
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.showObject = 0
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.showVectors = 0
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.showIndices = 1
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.force = 0 0 0 0 0 0 0 -98.1 0 -74.5507 0 978.163
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.dforce(V_DERIV) = 0 0 0 0 0 0 0 0 0 1.16211 0 0.08857
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.showColor = 1 1 1 1
+/Modelling/ServoMotor/Articulation/dofs.showColor = 1 1 1 1
+/Modelling/ServoMotor/Articulation/dofs.showVectors = 0
+/Modelling/ServoMotor/Axis2/MechanicalModel/dofs.force = 0 -1079.1 0 243.747 0 -950.236
+/Modelling/ServoMotor/Axis2/MechanicalModel/dofs.showColor = 1 1 1 1
+/Modelling/ServoMotor/Axis2/MechanicalModel/dofs.showIndices = 1
+
+--- NEW SESSION: 29/06/2022 22:25:20 ---
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.force = 0 0 0 0 0 0 0 -98.1 0 -834.482 0 -515.753
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.dforce(V_DERIV) = 0 0 0 0 0 0 0 0 0 -0.947003 0 1.53224
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.showColor = 1 1 1 1
+
+--- NEW SESSION: 29/06/2022 22:52:25 ---
+/Modelling/ServoMotor/Articulation0/dofs.showColor = 1 1 1 1
