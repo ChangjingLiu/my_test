@@ -83,25 +83,25 @@ class ServoMotor(Sofa.Prefab):
         angle0.addObject('MechanicalObject', name='dofs', template='Vec1', position=[[0]],
                          # rest_position=self.getData('angleIn').getLinkPath()
                          )
-        angle0.addObject('RestShapeSpringsForceField', points=0, stiffness=1e9)
+        # angle0.addObject('RestShapeSpringsForceField', points=0, stiffness=1e9)
         angle0.addObject('UniformMass', totalMass=0.01)
 
         # 关节轮 armWheel0 (非实体部分)
         armWheel0 = angle0.addChild('ArmWheel0')
         armWheel0.addObject('MechanicalObject', name='dofs', template='Rigid3',
-                           position=[[0., 0., 0., 0., 0., 0., 1.], [0., 0., 0., 0., 0., 0., 1.]],
-                           showObjectScale=10,
-                           showObject=True,
-                           translation=list(self.translation.value),
-                           rotation=list(self.rotation.value),
-                           scale3d=list(self.scale3d.value))
+                            position=[[0., 0., 0., 0., 0., 0., 1.], [0., 0., 0., 0., 0., 0., 1.]],
+                            showObjectScale=10,
+                            showObject=True,
+                            translation=list(self.translation.value),
+                            rotation=list(self.rotation.value),
+                            scale3d=list(self.scale3d.value))
         armWheel0.addObject('ArticulatedSystemMapping',
-                           input1="@../dofs",
-                           input2=axis2mechanicalModel.dofs.getLinkPath(),
-                           output="@./")
+                            input1=angle0.dofs.getLinkPath(),
+                            input2=axis2mechanicalModel.dofs.getLinkPath(),
+                            output="@./")
 
         # 上臂长 upperArmLong
-        upperArmLong = armWheel0.addChild('UpperArmLong')
+        upperArmLong = self.addChild('UpperArmLong')
         upperArmLongMechanicalModel = upperArmLong.addChild("MechanicalModel")
         upperArmLongMechanicalModel.addObject('MechanicalObject',
                                               name='dofs',
@@ -109,12 +109,13 @@ class ServoMotor(Sofa.Prefab):
                                               template='Rigid3d',
                                               showObject=True,
                                               showObjectScale=10,
-                                              translation=[0, 0, 30.58])
+                                              translation=[0, 0, 0])
         upperArmLongMechanicalModel.addObject('UniformMass', totalMass=0.01)
         upperArmLongMechanicalModel.addObject('RigidRigidMapping', name='mapping',
-                                              input="@../../dofs",
+                                              input=armWheel0.dofs.getLinkPath(),
                                               output="@./",
-                                              index=1)
+                                              index=1,  # input frame index,不能改
+                                              )
         # visual model
         upperArmLongVisualModel = upperArmLong.addChild('VisualModel')
         upperArmLongVisualModel.addObject('MeshSTLLoader', name='loader', filename='data/Ass_robot/upperArm_Long.STL',
@@ -127,66 +128,67 @@ class ServoMotor(Sofa.Prefab):
                                           input=upperArmLongMechanicalModel.dofs.getLinkPath(),
                                           output=upperArmLongVisualModel.renderer.getLinkPath(), )
 
-        articulationCenter = angle0.addChild('ArticulationCenter')
-        articulationCenter.addObject('ArticulationCenter', parentIndex=0, childIndex=1, posOnParent=[0., 0., 0.],
-                                     posOnChild=[0., 0., 0.])
-        articulations = articulationCenter.addChild('Articulations')
-        articulations.addObject('Articulation', translation=False, rotation=True, rotationAxis=[0, 1, 0],
+        articulationCenter0 = angle0.addChild('ArticulationCenter')
+        articulationCenter0.addObject('ArticulationCenter', parentIndex=0, childIndex=1,
+                                     posOnParent=[10., 0., 0.], posOnChild=[0., 0., -30.58],
+                                     articulationProcess=0, )
+        articulations0 = articulationCenter0.addChild('Articulations')
+        articulations0.addObject('Articulation', translation=False, rotation=True, rotationAxis=[0, 1, 0],
                                 articulationIndex=0)
-        angle0.addObject('ArticulatedHierarchyContainer', printLog=False)
-
-
-
+        self.addObject('ArticulatedHierarchyContainer', printLog=False)
 
         # 关节 angle1 (非实体部分)
-        angle1 = self.addChild('Articulation1')
-        angle1.addObject('MechanicalObject', name='dofs', template='Vec1', position=[[0]],
-                         # rest_position=self.getData('angleIn').getLinkPath()
-                         )
-        # angle.addObject('RestShapeSpringsForceField', points=0, stiffness=1e9)
-        angle1.addObject('UniformMass', totalMass=0.01)
+        # angle1 = self.addChild('Articulation1')
+        # angle1.addObject('MechanicalObject', name='dofs', template='Vec1', position=[[0]],
+        #                  # rest_position=self.getData('angleIn').getLinkPath()
+        #                  )
+        # # angle.addObject('RestShapeSpringsForceField', points=0, stiffness=1e9)
+        # angle1.addObject('UniformMass', totalMass=0.01)
+        #
+        # # #armWheel1
+        # armWheel1 = angle1.addChild('ArmWheel1')
+        # armWheel1.addObject('MechanicalObject', name='dofs', template='Rigid3',
+        #                     position=[[0., 0., 0., 0., 0., 0., 1.], [0., 0., 0., 0., 0., 0., 1.]],
+        #                     showObjectScale=5,
+        #                     showObject=True,
+        #                     translation=list(self.translation.value),
+        #                     rotation=list(self.rotation.value),
+        #                     scale3d=list(self.scale3d.value))
+        # armWheel1.addObject('ArticulatedSystemMapping',
+        #                     input1="@../dofs",
+        #                     # input2=upperArmLongMechanicalModel.dofs.getLinkPath(),
+        #                     output="@./")
+        # # #
+        # # # # 上臂短 upperArmShort
+        # upperArmShort = self.addChild('UpperArmShort')
+        # upperArmShortMechanicalModel = upperArmShort.addChild("MechanicalModel")
+        # upperArmShortMechanicalModel.addObject('MechanicalObject',
+        #                                        name='dofs',
+        #                                        size=1,
+        #                                        template='Rigid3d',
+        #                                        showObject=True,
+        #                                        showObjectScale=5,
+        #                                        translation=[0, 0, 50.58])
+        # upperArmShortMechanicalModel.addObject('UniformMass', totalMass=0.01)
+        # upperArmShortMechanicalModel.addObject('RigidRigidMapping', name='mapping',
+        #                                        input=armWheel1.dofs.getLinkPath(),
+        #                                        output="@./",
+        #                                        index=2)
 
-        #armWheel1
-        armWheel1 = angle1.addChild('ArmWheel1')
-        armWheel1.addObject('MechanicalObject', name='dofs', template='Rigid3',
-                            position=[[0., 0., 0., 0., 0., 0., 1.], [0., 0., 0., 0., 0., 0., 1.]],
-                            showObjectScale=10,
-                            showObject=True,
-                            translation=list(self.translation.value),
-                            rotation=list(self.rotation.value),
-                            scale3d=list(self.scale3d.value))
-        armWheel1.addObject('ArticulatedSystemMapping',
-                            input1="@../dofs",
-                            input2=upperArmLongMechanicalModel.dofs.getLinkPath(),
-                            output="@./")
 
-        # 上臂短 upperArmShort
-        upperArmShort = armWheel1.addChild('UpperArmShort')
-        upperArmShortMechanicalModel = upperArmShort.addChild("MechanicalModel")
-        upperArmShortMechanicalModel.addObject('MechanicalObject',
-                                              name='dofs',
-                                              size=1,
-                                              template='Rigid3d',
-                                              showObject=True,
-                                              showObjectScale=10,
-                                              translation=[0, 0, 30.58])
-        upperArmShortMechanicalModel.addObject('UniformMass', totalMass=0.01)
-        upperArmShortMechanicalModel.addObject('RigidRigidMapping', name='mapping',
-                                              input="@../../dofs",
-                                              output="@./",
-                                              index=1)
-
-        articulationCenter1 = angle1.addChild('ArticulationCenter')
-        articulationCenter1.addObject('ArticulationCenter', parentIndex=1, childIndex=2, posOnParent=[0., 0., 0.],
-                                     posOnChild=[0., 0., 0.])
-        articulations1 = articulationCenter1.addChild('Articulations')
-        articulations1.addObject('Articulation', translation=False, rotation=True, rotationAxis=[0, 1, 0],
-                                articulationIndex=1)
-        angle1.addObject('ArticulatedHierarchyContainer', printLog=False)
-
-        # The output
-        self.addData(name='angleOut', group='S90Properties', help='angle of rotation (in degree)', type='float',
-                     value=angle0.dofs.getData('position').getLinkPath())
+        # articulationCenter1 = angle1.addChild('ArticulationCenter')
+        # articulationCenter1.addObject('ArticulationCenter', parentIndex=1, childIndex=2,
+        #                               posOnParent=[20., 0., 0.], posOnChild=[0., 0., -20.],
+        #                               articulationProcess=0,
+        #                               )
+        # articulations1 = articulationCenter1.addChild('Articulations')
+        # articulations1.addObject('Articulation', translation=False, rotation=True, rotationAxis=[0, 1, 0],
+        #                          articulationIndex=1)
+        # angle1.addObject('ArticulatedHierarchyContainer', printLog=False)
+        #
+        # # The output
+        # self.addData(name='angleOut', group='S90Properties', help='angle of rotation (in degree)', type='float',
+        #              value=angle0.dofs.getData('position').getLinkPath())
 
 
 def createScene(rootNode):
