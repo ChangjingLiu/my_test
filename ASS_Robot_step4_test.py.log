@@ -1,0 +1,10 @@
+
+--- NEW SESSION: 30/06/2022 20:23:00 ---
+/Modelling/ServoMotor/angle0.showObject = 1
+/Modelling/ServoMotor/angle0.showIndices = 1
+/Modelling/ServoMotor/angle0.showVectors = 1
+/Modelling/ServoMotor/angle0.showColor = 1 1 1 1
+
+--- NEW SESSION: 30/06/2022 21:29:00 ---
+/Modelling/ServoMotor/Articulation/dofs.showColor = 1 1 1 1
+/Modelling/ServoMotor/Articulation/ArmWheel0/dofs.showColor = 1 1 1 1
