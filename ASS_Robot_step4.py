@@ -96,8 +96,8 @@ class ServoMotor(Sofa.Prefab):
                             rotation=list(self.rotation.value),
                             scale3d=list(self.scale3d.value))
         armWheel0.addObject('ArticulatedSystemMapping',
-                            input1=angle0.dofs.getLinkPath(),
-                            input2=axis2mechanicalModel.dofs.getLinkPath(),
+                            input1="@../dofs",
+                            # input2=axis2mechanicalModel.dofs.getLinkPath(),
                             output="@./")
 
         # 上臂长 upperArmLong
@@ -131,11 +131,11 @@ class ServoMotor(Sofa.Prefab):
         articulationCenter0 = angle0.addChild('ArticulationCenter')
         articulationCenter0.addObject('ArticulationCenter', parentIndex=0, childIndex=1,
                                      posOnParent=[10., 0., 0.], posOnChild=[0., 0., -30.58],
-                                     articulationProcess=0, )
+                                     articulationProcess=2, )
         articulations0 = articulationCenter0.addChild('Articulations')
         articulations0.addObject('Articulation', translation=False, rotation=True, rotationAxis=[0, 1, 0],
                                 articulationIndex=0)
-        self.addObject('ArticulatedHierarchyContainer', printLog=False)
+        angle0.addObject('ArticulatedHierarchyContainer', printLog=False)
 
         # 关节 angle1 (非实体部分)
         # angle1 = self.addChild('Articulation1')
