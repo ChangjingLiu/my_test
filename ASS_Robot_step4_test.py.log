@@ -8,3 +8,20 @@
 --- NEW SESSION: 30/06/2022 21:29:00 ---
 /Modelling/ServoMotor/Articulation/dofs.showColor = 1 1 1 1
 /Modelling/ServoMotor/Articulation/ArmWheel0/dofs.showColor = 1 1 1 1
+
+--- NEW SESSION: 01/07/2022 13:29:57 ---
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.force = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.velocity = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.externalForce = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.derivX = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.showColor = 1 1 1 1
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.10(V_DERIV) = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.9(V_DERIV) = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.dforce(V_DERIV) = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/Modelling/ServoMotor/Articulation/dofs.showColor = 1 1 1 1
+
+--- NEW SESSION: 01/07/2022 14:39:32 ---
+/Modelling/ServoMotor/Articulation/ArmWheel/ArticulatedSystemMapping.applyRestPosition = 1
+
+--- NEW SESSION: 01/07/2022 14:54:12 ---
+/Modelling/ServoMotor/MiddleArmLong/MechanicalModel/FixedConstraint.fixAll = 1

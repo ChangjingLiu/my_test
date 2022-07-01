@@ -1,6 +1,7 @@
 import os, sys
 import Sofa
 from stlib3.scene import Scene
+import numpy as np
 
 dirPath = os.path.dirname(os.path.abspath(__file__)) + '/'
 from stlib3.visuals import VisualModel
@@ -21,7 +22,7 @@ def CreateArm(name="Intestine", filepath='', rotation=None, visiontranslation=No
                               showObjectScale=10,
                               translation=[0, 0, 0])
     # upperArmLongMechanicalModel.addObject('FixedConstraint')
-    mechanicalModel.addObject('UniformMass', totalMass=0.01)
+    mechanicalModel.addObject('UniformMass', totalMass=0.1)
     # mechanicalModel.addObject('RigidRigidMapping', name='mapping',
     #                           input="@../../Articulation/ArmWheel/dofs",
     #                           output="@./",
@@ -95,7 +96,7 @@ class ServoMotor(Sofa.Prefab):
         # Articulation0
 
         angle = self.addChild('Articulation')
-        angle.addObject('MechanicalObject', name='dofs', template='Vec1', position=[[0], [0],[0]],
+        angle.addObject('MechanicalObject', name='dofs', template='Vec1', position=[[-np.pi/5], [0],[np.pi/2],[0],[np.pi]],
                         # rest_position=self.getData('angleIn').getLinkPath()
                         )
         # angle.addObject('RestShapeSpringsForceField', points=0, stiffness=1e9)
@@ -105,6 +106,7 @@ class ServoMotor(Sofa.Prefab):
         armWheel = angle.addChild('ArmWheel')
         armWheel.addObject('MechanicalObject', name='dofs', template='Rigid3',
                            position=[[0., 0., 0., 0., 0., 0., 1.], [0., 0., 0., 0., 0., 0., 1.],
+                                     [0., 0., 0., 0., 0., 0., 1.],[0., 0., 0., 0., 0., 0., 1.],
                                      [0., 0., 0., 0., 0., 0., 1.],[0., 0., 0., 0., 0., 0., 1.]],
                            showObjectScale=10,
                            showObject=True,
@@ -113,11 +115,12 @@ class ServoMotor(Sofa.Prefab):
                            scale3d=list(self.scale3d.value))
         armWheel.addObject('ArticulatedSystemMapping',
                            input1="@../dofs",
-                           # input2=axis2mechanicalModel.dofs.getLinkPath(),
+                           # input2='@../../Axis1/MechanicalModel/dofs',
                            output="@./dofs")
 
         angle.addObject('ArticulatedHierarchyContainer', printLog=False)
         articulationCenters = angle.addChild('ArticulationCenters')
+        #
         articulationCenter0 = articulationCenters.addChild('ArticulationCenter0')
         articulationCenter0.addObject('ArticulationCenter', parentIndex=0, childIndex=1,
                                       posOnParent=[0., 0., 0.], posOnChild=[0., 0., -30.58],
@@ -126,16 +129,64 @@ class ServoMotor(Sofa.Prefab):
         articulations0 = articulationCenter0.addChild('Articulations')
         articulations0.addObject('Articulation', translation=False, rotation=True, rotationAxis=[0, 1, 0],
                                  articulationIndex=0)
+        #
         articulationCenter1 = articulationCenters.addChild('ArticulationCenter1')
         articulationCenter1.addObject('ArticulationCenter', parentIndex=1, childIndex=2,
-                                      posOnParent=[0., 0., 0.], posOnChild=[0., 0., -30.58],
+                                      posOnParent=[0., 0., 0.], posOnChild=[0., 0., -26.41],
                                       articulationProcess=2,
                                       )
         articulations1 = articulationCenter1.addChild('Articulations')
         articulations1.addObject('Articulation', translation=False, rotation=True, rotationAxis=[0, 1, 0],
                                  articulationIndex=1)
+        #
+        articulationCenter2 = articulationCenters.addChild('ArticulationCenter2')
+        articulationCenter2.addObject('ArticulationCenter', parentIndex=2, childIndex=3,
+                                      posOnParent=[0., 0., 0.], posOnChild=[0., 11.3, -26.41],
+                                      articulationProcess=2,
+                                      )
+        articulations2 = articulationCenter2.addChild('Articulations')
+        articulations2.addObject('Articulation', translation=False, rotation=True, rotationAxis=[0, 1, 0],
+                                 articulationIndex=2)
+        #
+        articulationCenter3 = articulationCenters.addChild('ArticulationCenter3')
+        articulationCenter3.addObject('ArticulationCenter', parentIndex=3, childIndex=4,
+                                      posOnParent=[0., 0., 0.], posOnChild=[0., 0., -30.58],
+                                      articulationProcess=2,
+                                      )
+        articulations3 = articulationCenter3.addChild('Articulations')
+        articulations3.addObject('Articulation', translation=False, rotation=True, rotationAxis=[0, 1, 0],
+                                 articulationIndex=3)
+
+        # articulationCenter4 = articulationCenters.addChild('ArticulationCenter4')
+        # articulationCenter4.addObject('ArticulationCenter', parentIndex=4, childIndex=0,
+        #                               posOnParent=[0., 0., 0.], posOnChild=[0., 0., 0],
+        #                               articulationProcess=1,
+        #                               )
+        # articulations4 = articulationCenter4.addChild('Articulations')
+        # articulations4.addObject('Articulation', translation=False, rotation=True, rotationAxis=[0, 1, 0],
+        #                          articulationIndex=4)
 
         ##########
+
+        # 轴2 Axis2
+        axis1 = self.addChild('Axis1')
+        axis1mechanicalModel = axis1.addChild("MechanicalModel")
+        axis1mechanicalModel.addObject('MechanicalObject', name='dofs',
+                                       template='Rigid3d',
+                                       position=[[11.01, 0., 0., 0., 0., 0., 1.]],
+                                       translation=list(self.translation.value),
+                                       rotation=list(self.rotation.value),
+                                       scale3d=list(self.scale3d.value), )
+        axis1mechanicalModel.addObject('FixedConstraint')
+        axis1mechanicalModel.addObject('UniformMass', name="mass", totalMass=0.1)
+
+        axis1visualModel = axis1.addChild('VisualModel')
+        axis1visualModel.addObject('MeshSTLLoader', name='loader', filename='data/Ass_robot/Axis_2.STL')
+        axis1visualModel.addObject('MeshTopology', src='@loader')
+        axis1visualModel.addObject('OglModel', name='renderer', color=[0.15, 0.45, 0.75, 0.7], writeZTransparent=True)
+        axis1visualModel.addObject('RigidMapping',
+                              input=axis1mechanicalModel.dofs.getLinkPath(),
+                              output=axis1visualModel.renderer.getLinkPath(), )
 
         # 轴2 Axis2
         axis2 = self.addChild('Axis2')
@@ -168,7 +219,7 @@ class ServoMotor(Sofa.Prefab):
 
 
         # 上臂短 upperArmShort
-        upperArmShort = self.addChild(CreateArm(name='UpperArmLong', filepath='data/Ass_robot/upperArm_Short.STL',
+        upperArmShort = self.addChild(CreateArm(name='UpperArmShort', filepath='data/Ass_robot/upperArm_Short.STL',
                                                visiontranslation=[0.0, 0.0, -26.41]))
         upperArmShort.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                input="@../../Articulation/ArmWheel/dofs",
@@ -176,7 +227,24 @@ class ServoMotor(Sofa.Prefab):
                                                index=2,  # input frame index,不能改
                                                )
 
-
+        # 中臂短 middleArmShort
+        middleArmShort = self.addChild(CreateArm(name='MiddleArmShort', filepath='data/Ass_robot/middleArm_Short.STL',
+                                                visiontranslation=[0.0, 0.0, -26.41]))
+        middleArmShort.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
+                                                input="@../../Articulation/ArmWheel/dofs",
+                                                output="@./",
+                                                index=3,  # input frame index,不能改
+                                                )
+        # 中臂长 middleArmLong
+        middleArmLong = self.addChild(CreateArm(name='MiddleArmLong', filepath='data/Ass_robot/middleArm_Long.STL',
+                                                 visiontranslation=[0.0, 0.0, -30.58]))
+        middleArmLong.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
+                                                 input="@../../Articulation/ArmWheel/dofs",
+                                                 output="@./",
+                                                 index=4,  # input frame index,不能改
+                                                 )
+        # 无效
+        # middleArmLong.MechanicalModel.addObject('FixedConstraint')
 
 def createScene(rootNode):
     import math
@@ -192,7 +260,7 @@ def createScene(rootNode):
     scene.addObject('FreeMotionAnimationLoop')
     scene.addObject('GenericConstraintSolver', maxIterations=1e3, tolerance=1e-5)
     scene.Simulation.addObject('GenericConstraintCorrection')
-    scene.Settings.mouseButton.stiffness = 0.01
+    scene.Settings.mouseButton.stiffness = 0.001
     scene.dt = 0.01
     scene.gravity = [0., -9810., 0.]
     scene.Modelling.addChild(ServoMotor(name="ServoMotor"))
