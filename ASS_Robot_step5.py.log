@@ -1,0 +1,40 @@
+
+--- NEW SESSION: 01/07/2022 22:28:39 ---
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.force = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.velocity = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.externalForce = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.derivX = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.dforce(V_DERIV) = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.9(V_DERIV) = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.showColor = 1 1 1 1
+/Modelling/ServoMotor/Articulation/ArmWheel/dofs.10(V_DERIV) = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+--- NEW SESSION: 01/07/2022 23:05:23 ---
+/Simulation/ServoMotor.time = 2.93
+/Simulation/ServoMotor.animate = 1
+/Simulation/ServoMotor.angleIn = -0.260842
+
+--- NEW SESSION: 01/07/2022 23:07:05 ---
+/Simulation/ServoMotor/Articulation/ArmWheel/dofs.showColor = 1 1 1 1
+/Simulation/ServoMotor/Articulation/dofs.showColor = 1 1 1 1
+/Simulation/ServoMotor/Articulation/dofs.showColor = 1 1 1 1
+
+--- NEW SESSION: 01/07/2022 23:13:20 ---
+/Simulation/ServoMotor/Articulation/dofs.showColor = 1 1 1 1
+
+--- NEW SESSION: 01/07/2022 23:15:49 ---
+/Simulation/ServoMotor/Articulation/dofs.showColor = 1 1 1 1
+
+--- NEW SESSION: 01/07/2022 23:18:42 ---
+/Simulation/ServoMotor/Articulation/dofs.showColor = 1 1 1 1
+
+--- NEW SESSION: 01/07/2022 23:29:51 ---
+/Simulation/ServoMotor.time = 2.16
+/Simulation/ServoMotor.animate = 1
+/Simulation/ServoMotor/Articulation/dofs.showColor = 1 1 1 1
+/Simulation/ServoMotor/Articulation/dofs.showColor = 1 1 1 1
+/Simulation/ServoMotor/Articulation/dofs.showColor = 1 1 1 1
+
+--- NEW SESSION: 01/07/2022 23:35:21 ---
+/Simulation/ServoMotor/Articulation/RestShapeSpringsForceField.springColor = 0 1 0 1
+/Simulation/ServoMotor/Articulation/RestShapeSpringsForceField.springColor = 0 1 0 1

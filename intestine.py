@@ -48,7 +48,9 @@ def Intestine(name="Intestine", rotation=None, translation=None, color=None):
     visualmodel.addObject('MeshSTLLoader',
                           name='loader',
                           filename='data/myBody.stl',
-                          rotation=[90.0, 0.0, 0])
+                          rotation=rotation,
+                          translation=translation,
+    )
     visualmodel.addObject('OglModel',
                           src=visualmodel.loader.getLinkPath(),
                           name='renderer',
@@ -62,8 +64,10 @@ def Intestine(name="Intestine", rotation=None, translation=None, color=None):
     # 碰撞模型
     # Collision Object for the Cube
     self.addCollision=CollisionMesh(mechanicalmodel,
-                  surfaceMeshFileName="data/myBody.stl", name="CollisionModel", rotation=[90.0, 0.0, 0.0],
-                  collisionGroup=1)
+                  surfaceMeshFileName="data/myBody.stl", name="CollisionModel",
+                                    rotation=rotation,translation=translation,
+                  # collisionGroup=1
+                                    )
 
     return self
 

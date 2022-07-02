@@ -242,7 +242,7 @@ class ServoMotor(Sofa.Prefab):
         #
         articulationCenter0 = articulationCenters.addChild('ArticulationCenter0')
         articulationCenter0.addObject('ArticulationCenter', parentIndex=0, childIndex=1,
-                                      posOnParent=[0., 0., 0.], posOnChild=[0., 0., -30.58],
+                                      posOnParent=[0., 0., 0.], posOnChild=[-2.25, 0., -30.5],
                                       articulationProcess=2,
                                       )
         articulations0 = articulationCenter0.addChild('Articulations')
@@ -251,7 +251,7 @@ class ServoMotor(Sofa.Prefab):
         #
         articulationCenter1 = articulationCenters.addChild('ArticulationCenter1')
         articulationCenter1.addObject('ArticulationCenter', parentIndex=1, childIndex=2,
-                                      posOnParent=[0., 0., 0.], posOnChild=[0., 0., -26.41],
+                                      posOnParent=[0., 0., 0.], posOnChild=[-2.76, 0.0, -26.27],
                                       articulationProcess=2,
                                       )
         articulations1 = articulationCenter1.addChild('Articulations')
@@ -260,7 +260,7 @@ class ServoMotor(Sofa.Prefab):
         #
         articulationCenter2 = articulationCenters.addChild('ArticulationCenter2')
         articulationCenter2.addObject('ArticulationCenter', parentIndex=2, childIndex=3,
-                                      posOnParent=[0., 0., 0.], posOnChild=[0., 11.3, -26.41],
+                                      posOnParent=[0., 0., 0.], posOnChild=[2.76, 11.3, -26.27],
                                       articulationProcess=2,
                                       )
         articulations2 = articulationCenter2.addChild('Articulations')
@@ -269,7 +269,7 @@ class ServoMotor(Sofa.Prefab):
         #
         articulationCenter3 = articulationCenters.addChild('ArticulationCenter3')
         articulationCenter3.addObject('ArticulationCenter', parentIndex=3, childIndex=4,
-                                      posOnParent=[0., 0., 0.], posOnChild=[0., 0., -30.58],
+                                      posOnParent=[0., 0., 0.], posOnChild=[2.25, 0., -30.5],
                                       articulationProcess=2,
                                       )
         articulations3 = articulationCenter3.addChild('Articulations')
@@ -322,7 +322,7 @@ class ServoMotor(Sofa.Prefab):
 
         # 上臂长 upperArmLong,ok
         upperArmLong = self.addChild(CreateArm(name='UpperArmLong', filepath='data/Ass_robot/sofa_model_1/upperArm_Long.STL',
-                                               visiontranslation=[0.0, 0.0, -30.5]))
+                                               visiontranslation=[-2.25, 0., -30.5]))
         upperArmLong.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                             input="@../../Articulation/ArmWheel/dofs",
                                                             output="@./",
@@ -332,7 +332,7 @@ class ServoMotor(Sofa.Prefab):
 
         # 上臂短 upperArmShort
         upperArmShort = self.addChild(CreateArm(name='UpperArmShort', filepath='data/Ass_robot/sofa_model_1/upperArm_Short.STL',
-                                               visiontranslation=[0.0, 0.0, -26.27]))
+                                               visiontranslation=[-2.76, 0.0, -26.27]))
         upperArmShort.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                input="@../../Articulation/ArmWheel/dofs",
                                                output="@./",
@@ -340,16 +340,16 @@ class ServoMotor(Sofa.Prefab):
                                                )
 
         # 中臂短 middleArmShort
-        middleArmShort = self.addChild(CreateArm(name='MiddleArmShort', filepath='data/Ass_robot/sofa_model/middleArm_Short.STL',
-                                                visiontranslation=[0.0, 0.0, -26.41]))
+        middleArmShort = self.addChild(CreateArm(name='MiddleArmShort', filepath='data/Ass_robot/sofa_model_1/middleArm_Short.STL',
+                                                visiontranslation=[2.76, 0.0, -26.27]))
         middleArmShort.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                 input="@../../Articulation/ArmWheel/dofs",
                                                 output="@./",
                                                 index=3,  # input frame index,不能改
                                                 )
         # 中臂长 middleArmLong
-        middleArmLong = self.addChild(CreateArm(name='MiddleArmLong', filepath='data/Ass_robot/sofa_model/middleArm_Long.STL',
-                                                 visiontranslation=[0.0, 0.0, -30.58]))
+        middleArmLong = self.addChild(CreateArm(name='MiddleArmLong', filepath='data/Ass_robot/sofa_model_1/middleArm_Long.STL',
+                                                 visiontranslation=[2.25, 0.0, -30.5]))
         middleArmLong.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                  input="@../../Articulation/ArmWheel/dofs",
                                                  output="@./",

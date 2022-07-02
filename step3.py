@@ -98,10 +98,10 @@ def createScene(rootNode):
     box2.BoxROI.drawBoxes = True
 
     # 添加Simulation模块
-    root.Simulation.addChild(root.Modelling.Intestine)
-    root.Simulation.addChild(root.Modelling.Cube)
-    root.Simulation.addChild(root.Modelling.box1)
-    root.Simulation.addChild(root.Modelling.box2)
+    # root.Simulation.addChild(root.Modelling.Intestine)
+    # root.Simulation.addChild(root.Modelling.Cube)
+    # root.Simulation.addChild(root.Modelling.box1)
+    # root.Simulation.addChild(root.Modelling.box2)
 
     # 添加全局控制器 Add Controller
     # 参数为节点
