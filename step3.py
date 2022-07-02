@@ -64,7 +64,7 @@ def createScene(rootNode):
     root.VisualStyle.displayFlags = "showCollisionModels"
 
     # 添加肠道模型 Add the intestine model
-    # root.Modelling.addChild(Intestine(rotation=[90.0, 0.0, 0.0], color=[1.0, 1.0, 1.0, 0.5]))
+    root.Modelling.addChild(Intestine(rotation=[90.0, 0.0, 0.0], color=[1.0, 1.0, 1.0, 0.5]))
     # 添加一个方块 Add Cube
     # scene.Modelling.addChild(
     #     myCube(translation=[0, 200, 0], rotation=[0.0, 0.0, 0.0], color=[1.0, 1.0, 1.0, 0.5], scale=2))
@@ -98,7 +98,7 @@ def createScene(rootNode):
     box2.BoxROI.drawBoxes = True
 
     # 添加Simulation模块
-    # root.Simulation.addChild(root.Modelling.Intestine)
+    root.Simulation.addChild(root.Modelling.Intestine)
     root.Simulation.addChild(root.Modelling.Cube)
     root.Simulation.addChild(root.Modelling.box1)
     root.Simulation.addChild(root.Modelling.box2)

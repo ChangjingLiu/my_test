@@ -98,17 +98,15 @@ class ServoMotor(Sofa.Prefab):
         self.addData(name='maxAngle', group='S90Properties', help='max angle of rotation (in radians)', type='float',
                      value=100)
         self.addData(name='angleIn', group='S90Properties', help='angle of rotation (in radians)', type='vector<float>',
-                     value=[0,0,0,0])
+                     value=[-0.43282318, 1.2, 1.6072389, 1.2])
         self.addData(name='angleIn1', group='S90Properties', help='angle of rotation (in radians)', type='float',
                      value=np.pi/3)
 
         # Articulation0
 
         angle = self.addChild('Articulation')
-        angle.addObject('MechanicalObject', name='dofs', template='Vec1', position=[[0], [0],[0],[0]],
-                        # rest_position=[[getAngle(11.01/2,30.58,26.41,self.getData('angleIn').getLinkPath())],[self.getData('angleIn').getLinkPath()]],
+        angle.addObject('MechanicalObject', name='dofs', template='Vec1', position=[[-0.43282318], [1.2],[1.6072389],[1.2]],
                         rest_position=self.getData('angleIn').getLinkPath(),
-                        # rest_position=[[self.angleIn.value],[0]]
                         )
         angle.addObject('RestShapeSpringsForceField', points=0, stiffness=1e9)
         angle.addObject('RestShapeSpringsForceField', points=1, stiffness=1e9)
@@ -155,7 +153,7 @@ class ServoMotor(Sofa.Prefab):
         #
         articulationCenter2 = articulationCenters.addChild('ArticulationCenter2')
         articulationCenter2.addObject('ArticulationCenter', parentIndex=2, childIndex=3,
-                                      posOnParent=[0., 0., 0.], posOnChild=[0., 11.03, -26.41],
+                                      posOnParent=[0., 0., 0.], posOnChild=[0., 11.3, -26.41],
                                       articulationProcess=2,
                                       )
         articulations2 = articulationCenter2.addChild('Articulations')
@@ -175,12 +173,12 @@ class ServoMotor(Sofa.Prefab):
 
         ##########
 
-        # 轴2 Axis2
+        # 轴1 Axis1
         axis1 = self.addChild('Axis1')
         axis1mechanicalModel = axis1.addChild("MechanicalModel")
         axis1mechanicalModel.addObject('MechanicalObject', name='dofs',
                                        template='Rigid3d',
-                                       position=[[11.01, 0., 0., 0., 0., 0., 1.]],
+                                       position=[[11.01, -11.3, 0., 0., 0., 0., 1.]],
                                        translation=list(self.translation.value),
                                        rotation=list(self.rotation.value),
                                        scale3d=list(self.scale3d.value), )
@@ -188,7 +186,7 @@ class ServoMotor(Sofa.Prefab):
         axis1mechanicalModel.addObject('UniformMass', name="mass", totalMass=0.1)
 
         axis1visualModel = axis1.addChild('VisualModel')
-        axis1visualModel.addObject('MeshSTLLoader', name='loader', filename='data/Ass_robot/Axis_2.STL')
+        axis1visualModel.addObject('MeshSTLLoader', name='loader', filename='data/Ass_robot/Axis_1.STL')
         axis1visualModel.addObject('MeshTopology', src='@loader')
         axis1visualModel.addObject('OglModel', name='renderer', color=[0.15, 0.45, 0.75, 0.7], writeZTransparent=True)
         axis1visualModel.addObject('RigidMapping',
@@ -250,23 +248,24 @@ class ServoMotor(Sofa.Prefab):
                                                  output="@./",
                                                  index=4,  # input frame index,不能改
                                                  )
-        # 无效
+        # 传感器部分
 
 def createScene(rootNode):
     import math
     from splib3.animation import animate
 
     def animation(target, factor):
-        print(type(target.angleIn.value))
-        print((target.angleIn.value[1]))
+        # print(type(target.angleIn.value))
+        # print((target.angleIn.value[1]))
         # target.angleIn.value[0] = math.cos(factor * 2 * math.pi)
         with target.angleIn.writeableArray() as wa:
-            wa[1] = abs(math.cos(factor * 2 * math.pi))+0.2
+            wa[1] = abs(math.cos(factor * 2 * math.pi))+0.2 # create angle
             theta1=np.pi-wa[1]
             theta24=getAngle(11.01 / 2, 30.58, 26.41, np.pi - wa[1])
             wa[0]=-theta24+np.pi/2
             wa[2]=np.pi-2*(np.pi*2-np.pi/2-theta24-theta1)
             wa[3] = wa[1]
+            # print(wa)
             # wa[0] = -abs(math.cos(factor * 2 * math.pi))
 
     scene = Scene(rootNode, plugins=['SofaConstraint', 'SofaGeneralRigid', 'SofaOpenglVisual', 'SofaRigid',
