@@ -398,11 +398,11 @@ class ServoMotor(Sofa.Prefab):
                                                 )
         # 传感器部分
         sensors = self.addChild("Sensors")
-        sensor0 = self.addChild(CreateSensor(name='Sensor0', filepath='data/Ass_robot/sofa_model/sensor.stl',
+        sensor0 = sensors.addChild(CreateSensor(name='Sensor0', filepath='data/Ass_robot/sofa_model/sensor.stl',
                                              rotation=[0.0, (np.pi / 2 - np.arcsin(2.25 / 30.5)) / np.pi * 180, 0.0],
                                              translation=[3.05, -4.5, -5.67]))
         sensor0.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
-                                          input="@../../Articulation/ArmWheel/dofs",
+                                          input="@../../../Articulation/ArmWheel/dofs",
                                           output="@./",
                                           index=1,  # input frame index,不能改
                                           )
@@ -411,38 +411,38 @@ class ServoMotor(Sofa.Prefab):
 def createScene(rootNode):
     import math
     from splib3.animation import animate
-
-    def animation(target, factor):
-        # print(type(target.angleIn.value))
-        # print((target.angleIn.value[1]))
-        # target.angleIn.value[0] = math.cos(factor * 2 * math.pi)
-        with target.angleIn.writeableArray() as wa:
-            wa[1] = abs(math.cos(factor * 2 * math.pi)) + 0.2  # create angle
-            theta1 = np.pi - wa[1]
-            theta24 = getAngle(11.01 / 2, 30.58, 26.41, np.pi - wa[1])
-            wa[0] = -theta24 + np.pi / 2
-            wa[2] = np.pi - 2 * (np.pi * 2 - np.pi / 2 - theta24 - theta1)
-            wa[3] = wa[1]
-            # print(wa)
-            # wa[0] = -abs(math.cos(factor * 2 * math.pi))
-
-    scene = Scene(rootNode, plugins=['SofaConstraint', 'SofaGeneralRigid', 'SofaOpenglVisual', 'SofaRigid',
-                                     ], iterative=False)
+    scene = Scene(rootNode, gravity=[0.0, -9810, 0.0], dt=0.001,
+                 plugins=['SofaSparseSolver', 'SofaOpenglVisual', 'SofaSimpleFem', 'SofaDeformable', 'SofaEngine',
+                          'SofaGraphComponent', 'SofaRigid', 'SoftRobots'],
+                 iterative=False)
     scene.addMainHeader()
-    scene.addObject('DefaultVisualManagerLoop')
-    scene.addObject('FreeMotionAnimationLoop')
+    # Add ContactHeader
+    # choice 1
+    # ContactHeader(rootNode, alarmDistance=4, contactDistance=0.1, frictionCoef=0.2)
+    # choice 2
+    scene.addObject('DefaultPipeline')
+    scene.addObject('BruteForceBroadPhase')
+    scene.addObject('BVHNarrowPhase')
+    frictionCoef = 0.5
+    scene.addObject('RuleBasedContactManager', responseParams="mu=" + str(frictionCoef),
+                   name='Response', response='FrictionContactConstraint')
     scene.addObject('LocalMinDistance',
                    alarmDistance=4, contactDistance=0.2,
                    angleCone=0.01)
-    # scene.addObject('GenericConstraintSolver', maxIterations=1e3, tolerance=1e-5)
+    scene.addObject('FreeMotionAnimationLoop')
     scene.addObject('GenericConstraintSolver', tolerance=1e-6, maxIterations=1000,
                    computeConstraintForces=True, multithreading=True)
+
+
+
+
     scene.Simulation.addObject('GenericConstraintCorrection')
     scene.Settings.mouseButton.stiffness = 0.1
-    scene.dt = 0.01
-    scene.gravity = [0., -9810., 0.]
     scene.VisualStyle.displayFlags = "showBehavior showCollision"
     # scene.Modelling.addChild(ServoMotor(name="ServoMotor"))
+
+
+    # simulation model
     scene.Simulation.addChild(Intestine(rotation=[90.0, 0.0, 0.0],translation=[20,20,30], color=[1.0, 1.0, 1.0, 0.5]))
     scene.Simulation.addChild(ServoMotor(name="ServoMotor"))
     # animate(animation, {'target': scene.Simulation.ServoMotor}, duration=10., mode='loop')
