@@ -2,7 +2,7 @@
 '''
 Step 6:
 在这一步中，实现了
-1.传感器模型
+1.ASS_robot 添加传感器模型
 2.测试碰撞模型
 '''
 import os, sys
@@ -117,12 +117,21 @@ class EmptyController(Sofa.Core.Controller):
 
 
 def getAngle(x1, x2, x3, theta1):
-    x4_2 = x2 * x2 + x3 * x3 - 2 * x2 * x3 * np.cos((theta1))
-    x4 = np.sqrt(x4_2)
-    costheta2 = (x2 * x2 + x4_2 - x3 * x3) / (2 * x2 * x4)
-    theta2 = np.arccos(costheta2)
-    theta4 = np.arccos(x1 / x4)
-    return (theta2 + theta4)
+    if theta1<np.pi:
+        x4_2 = x2 * x2 + x3 * x3 - 2 * x2 * x3 * np.cos((theta1))
+        x4 = np.sqrt(x4_2)
+        costheta2 = (x2 * x2 + x4_2 - x3 * x3) / (2 * x2 * x4)
+        theta2 = np.arccos(costheta2)
+        theta4 = np.arccos(x1 / x4)
+        ans=theta2 + theta4
+    else:
+        x4_2 = x2 * x2 + x3 * x3 - 2 * x2 * x3 * np.cos((theta1))
+        x4 = np.sqrt(x4_2)
+        costheta2 = (x2 * x2 + x4_2 - x3 * x3) / (2 * x2 * x4)
+        theta2 = np.arccos(costheta2)
+        theta4 = np.arccos(x1 / x4)
+        ans = -theta2 + theta4
+    return ans
 
 
 def CreateArm(name="Intestine", filepath='', rotation=None, visiontranslation=None, color=None):
@@ -160,7 +169,9 @@ def CreateArm(name="Intestine", filepath='', rotation=None, visiontranslation=No
     return self
 
 
-def CreateSensor(name="Sensor", filepath='', rotation=None, translation=None, color=None):
+def CreateSensor(name="Sensor", filepath='', rotation=None, translation=None,
+                 collisionrotation=None,collisiontranslation=None,
+                 color=None):
     if color is None:
         color = [0.5, 0.8, 0.1, 0.3]
     self = Sofa.Core.Node(name)
@@ -172,7 +183,7 @@ def CreateSensor(name="Sensor", filepath='', rotation=None, translation=None, co
                               name='dofs',
                               size=1,
                               template='Rigid3d',
-                              showObject=True,
+                              # showObject=True,
                               showObjectScale=10,
                               rotation=rotation,
                               translation=translation, )
@@ -181,13 +192,14 @@ def CreateSensor(name="Sensor", filepath='', rotation=None, translation=None, co
     # collision model
     collisionmodel = self.addChild("CollisionModel")
     collisionmodel.addObject('MeshSTLLoader', name="loader", filename=filepath,
-                             # rotation=rotation, translation=translation
+                             rotation=collisionrotation, translation=collisiontranslation
                              )
     collisionmodel.addObject('MeshTopology', src="@loader")
     collisionmodel.addObject('MechanicalObject')
-    collisionmodel.addObject('PointCollisionModel')
-    collisionmodel.addObject('LineCollisionModel')
-    collisionmodel.addObject('TriangleCollisionModel')
+    # 传感器的碰撞组为1
+    collisionmodel.addObject('PointCollisionModel',group=1)
+    collisionmodel.addObject('LineCollisionModel',group=1)
+    collisionmodel.addObject('TriangleCollisionModel',group=1)
     collisionmodel.addObject('RigidMapping',
                              input=mechanicalModel.dofs.getLinkPath(),
 
@@ -397,14 +409,97 @@ class ServoMotor(Sofa.Prefab):
                                                 index=4,  # input frame index,不能改
                                                 )
         # 传感器部分
+        # sensor in upperArmLong
         sensors = self.addChild("Sensors")
-        sensor0 = sensors.addChild(CreateSensor(name='Sensor0', filepath='data/Ass_robot/sofa_model/sensor.stl',
+        sensor0 = sensors.addChild(CreateSensor(name='Sensor0', filepath='data/Ass_robot/sofa_model/sensor-Cube.stl',
                                              rotation=[0.0, (np.pi / 2 - np.arcsin(2.25 / 30.5)) / np.pi * 180, 0.0],
-                                             translation=[3.05, -4.5, -5.67]))
+                                             collisiontranslation=[5.67, -4.5, 3.05],
+                                             # translation=[3.05, -4.5, -5.67]
+                                                ))
         sensor0.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                           input="@../../../Articulation/ArmWheel/dofs",
                                           output="@./",
                                           index=1,  # input frame index,不能改
+                                          )
+        sensor1 = sensors.addChild(CreateSensor(name='Sensor1', filepath='data/Ass_robot/sofa_model/sensor-Cube.stl',
+                                                rotation=[-90.0, (np.pi / 2 - np.arcsin(2.25 / 30.5)) / np.pi * 180, 0.0],
+                                                # translation=[0, 4.3, -5.67]),
+                                                collisiontranslation=[5.67, -2.25, 4.3],
+                                                ))
+        sensor1.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
+                                          input="@../../../Articulation/ArmWheel/dofs",
+                                          output="@./",
+                                          index=1,  # input frame index,不能改
+                                          )
+        # sensor in upperArmShort
+        sensor2 = sensors.addChild(CreateSensor(name='Sensor2', filepath='data/Ass_robot/sofa_model/sensor-Cube.stl',
+                                                rotation=[0.0, (np.pi / 2 - np.arcsin(2.76 / 26.27)) / np.pi * 180, 0.0],
+                                                collisiontranslation=[6.67, -4.5, 0.29],
+                                                # translation=[3.05, -4.5, -5.67]
+                                                ))
+        sensor2.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
+                                          input="@../../../Articulation/ArmWheel/dofs",
+                                          output="@./",
+                                          index=2,  # input frame index,不能改
+                                          )
+        sensor3 = sensors.addChild(CreateSensor(name='Sensor3', filepath='data/Ass_robot/sofa_model/sensor-Cube.stl',
+                                                rotation=[-90.0, (np.pi / 2 - np.arcsin(2.76 / 26.27)) / np.pi * 180,
+                                                          0.0],
+                                                # translation=[0, 4.3, -5.67]),
+                                                collisiontranslation=[6.77, 0.51, 4.3],
+                                                ))
+        sensor3.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
+                                          input="@../../../Articulation/ArmWheel/dofs",
+                                          output="@./",
+                                          index=2,  # input frame index,不能改
+                                          )
+
+        # sensor in middleArmShort
+        sensor4 = sensors.addChild(CreateSensor(name='Sensor4', filepath='data/Ass_robot/sofa_model/sensor-Cube.stl',
+                                                rotation=[0.0, (-np.pi / 2 + np.arcsin(2.76 / 26.27)) / np.pi * 180,
+                                                          0.0],
+                                                collisiontranslation=[6.77-26.27, -4.3, -0.51-2.76],
+                                                # translation=[3.05, -4.5, -5.67]
+                                                ))
+        sensor4.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
+                                          input="@../../../Articulation/ArmWheel/dofs",
+                                          output="@./",
+                                          index=3,  # input frame index,不能改
+                                          )
+        sensor5 = sensors.addChild(CreateSensor(name='Sensor5', filepath='data/Ass_robot/sofa_model/sensor-Cube.stl',
+                                                rotation=[90.0, (-np.pi/2 + np.arcsin(2.76 / 26.27)) / np.pi * 180,
+                                                          0.0],
+                                                # translation=[0, 4.3, -5.67]),
+                                                collisiontranslation=[6.77-26.27, 0.4-2.76, -4.5],
+                                                ))
+        sensor5.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
+                                          input="@../../../Articulation/ArmWheel/dofs",
+                                          output="@./",
+                                          index=3,  # input frame index,不能改
+                                          )
+
+        # sensor in middleArmLong
+        sensor6 = sensors.addChild(CreateSensor(name='Sensor6', filepath='data/Ass_robot/sofa_model/sensor-Cube.stl',
+                                                rotation=[0.0, (-np.pi / 2 + np.arcsin(2.25 / 30.5)) / np.pi * 180,
+                                                          0.0],
+                                                collisiontranslation=[0 - 24.83, -4.5, -5.3-0.21],
+                                                # translation=[3.05, -4.5, -5.67]
+                                                ))
+        sensor6.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
+                                          input="@../../../Articulation/ArmWheel/dofs",
+                                          output="@./",
+                                          index=4,  # input frame index,不能改
+                                          )
+        sensor7 = sensors.addChild(CreateSensor(name='Sensor7', filepath='data/Ass_robot/sofa_model/sensor-Cube.stl',
+                                                rotation=[90.0, (-np.pi / 2 + np.arcsin(2.25 / 30.5)) / np.pi * 180,
+                                                          0.0],
+                                                # translation=[0, 4.3, -5.67]),
+                                                collisiontranslation=[0 - 24.83, -4.5, -4.3-0.21],
+                                                ))
+        sensor7.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
+                                          input="@../../../Articulation/ArmWheel/dofs",
+                                          output="@./",
+                                          index=4,  # input frame index,不能改
                                           )
 
 
@@ -443,17 +538,20 @@ def createScene(rootNode):
 
 
     # simulation model
-    scene.Simulation.addChild(Intestine(rotation=[90.0, 0.0, 0.0],translation=[20,20,30], color=[1.0, 1.0, 1.0, 0.5]))
+    # scene.Simulation.addChild(Intestine(rotation=[90.0, 0.0, 0.0],translation=[20,20,30], color=[1.0, 1.0, 1.0, 0.5]))
     scene.Simulation.addChild(ServoMotor(name="ServoMotor"))
     # animate(animation, {'target': scene.Simulation.ServoMotor}, duration=10., mode='loop')
     # scene.Simulation.ServoMotor.Articulation.ServoWheel.dofs.showObject = True
 
-    box1 = FixingBox(scene.Simulation,
-                     scene.Simulation.Intestine.MechanicalModel,
-                     name="box1",
-                     translation=[20.0, 20.0, 30.0],
-                     scale=[30., 30., 30.])
-    box1.BoxROI.drawBoxes = True
+    # box1 = FixingBox(scene.Simulation,
+    #                  scene.Simulation.Intestine.MechanicalModel,
+    #                  name="box1",
+    #                  translation=[20.0, 20.0, 30.0],
+    #                  scale=[30., 30., 30.])
+    # box1.BoxROI.drawBoxes = True
+
+
+
     # box1.BoxROI.drawBoxes = True
     # scene.Simulation.addChild(scene.Modelling.ServoMotor.box1)
     scene.addObject(EmptyController(name='controller', ServoMotor=scene.Simulation.ServoMotor))
