@@ -252,7 +252,7 @@ class ServoMotor(Sofa.Prefab):
     def init(self):
         # The inputs
         self.addData(name='minAngle', group='S90Properties', help='min angle of rotation (in radians)', type='float',
-                     value=-100)
+                     value=0)
         self.addData(name='maxAngle', group='S90Properties', help='max angle of rotation (in radians)', type='float',
                      value=100)
         self.addData(name='angleIn', group='S90Properties', help='angle of rotation (in radians)', type='vector<float>',
@@ -408,6 +408,26 @@ class ServoMotor(Sofa.Prefab):
                                                 output="@./",
                                                 index=4,  # input frame index,不能改
                                                 )
+        # 下臂长 lowerArmLong
+        lowerArmLong = self.addChild(
+            CreateArm(name='LowerArmLong', filepath='data/Ass_robot/sofa_model/lowerArm_Long.STL',
+                      visiontranslation=[0.0, -22.6, -30.58]))
+        lowerArmLong.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
+                                               input="@../../Articulation/ArmWheel/dofs",
+                                               output="@./",
+                                               index=1,  # input frame index,不能改
+                                               )
+        # 下臂短 lowerArmShort
+        lowerArmShort = self.addChild(
+            CreateArm(name='LowerArmShort', filepath='data/Ass_robot/sofa_model/lowerArm_Short.STL',
+                      visiontranslation=[0.0, -22.6, -26.41]))
+        lowerArmShort.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
+                                                input="@../../Articulation/ArmWheel/dofs",
+                                                output="@./",
+                                                index=2,  # input frame index,不能改
+                                                )
+
+
         # 传感器部分
         # sensor in upperArmLong
         sensors = self.addChild("Sensors")
@@ -502,6 +522,29 @@ class ServoMotor(Sofa.Prefab):
                                           index=4,  # input frame index,不能改
                                           )
 
+        sensor8 = sensors.addChild(CreateSensor(name='Sensor8', filepath='data/Ass_robot/sofa_model/sensor-Cube.stl',
+                                                rotation=[0.0, (np.pi / 2 - np.arcsin(2.25 / 30.5)) / np.pi * 180, 0.0],
+                                                collisiontranslation=[5.67, -4.5-22.6, 3.05],
+                                                # translation=[3.05, -4.5, -5.67]
+                                                ))
+        sensor8.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
+                                          input="@../../../Articulation/ArmWheel/dofs",
+                                          output="@./",
+                                          index=1,  # input frame index,不能改
+                                          )
+
+        sensor9 = sensors.addChild(CreateSensor(name='Sensor9', filepath='data/Ass_robot/sofa_model/sensor-Cube.stl',
+                                                rotation=[0.0, (np.pi / 2 - np.arcsin(2.76 / 26.27)) / np.pi * 180,
+                                                          0.0],
+                                                collisiontranslation=[6.67, -4.5-22.6, 0.29],
+                                                # translation=[3.05, -4.5, -5.67]
+                                                ))
+        sensor9.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
+                                          input="@../../../Articulation/ArmWheel/dofs",
+                                          output="@./",
+                                          index=2,  # input frame index,不能改
+                                          )
+
 
 def createScene(rootNode):
     import math
@@ -539,7 +582,7 @@ def createScene(rootNode):
 
     # simulation model
     # scene.Simulation.addChild(Intestine(rotation=[90.0, 0.0, 0.0],translation=[20,20,30], color=[1.0, 1.0, 1.0, 0.5]))
-    scene.Simulation.addChild(ServoMotor(name="ServoMotor"))
+    scene.Simulation.addChild(ServoMotor(name="ServoMotor",translation=[0,0,0],rotation=[0,0,0]))
     # animate(animation, {'target': scene.Simulation.ServoMotor}, duration=10., mode='loop')
     # scene.Simulation.ServoMotor.Articulation.ServoWheel.dofs.showObject = True
 
