@@ -27,24 +27,6 @@ class EmptyController(Sofa.Core.Controller):
         self.ServoMotor = kwargs["ServoMotor"]
         self.stepsize = 0.05
 
-    # Default BaseObject functions********************************
-    def init(self):
-        pass
-
-    def bwdInit():
-        pass
-
-    def reinit():
-        pass
-
-    # Default Events *********************************************
-    def onAnimateBeginEvent(self, event):  # called at each begin of animation step
-        # print(self.angleIn)
-        pass
-
-    def onAnimateEndEvent(self, event):  # called at each end of animation step
-        pass
-
     def onKeypressedEvent(self, event):
         key = event['key']
         if ord(key) == 19:  # up
@@ -65,55 +47,6 @@ class EmptyController(Sofa.Core.Controller):
             self.ServoMotor.angleIn[0] = -theta24 + np.pi / 2
             self.ServoMotor.angleIn[2] = np.pi - 2 * (np.pi * 2 - np.pi / 2 - theta24 - theta1)
             self.ServoMotor.angleIn[3] = self.ServoMotor.angleIn[1]
-
-        if ord(key) == 18:  # left
-            print("You pressed the Left key")
-
-        if ord(key) == 20:  # right
-            print("You pressed the Right key")
-
-    def onKeyreleasedEvent(self, event):
-        key = event['key']
-        if ord(key) == 19:  # up
-            print("You released the Up key")
-            # self.actuators[0].ServoMotor.angleIn = self.actuators[0].ServoMotor.angleOut.value + self.stepsize
-
-        if ord(key) == 21:  # down
-            print("You released the Down key")
-
-        if ord(key) == 18:  # left
-            print("You released the Left key")
-
-        if ord(key) == 20:  # right
-            print("You released the Right key")
-
-    def onMouseEvent(self, event):
-        if (event['State'] == 0):  # mouse moving
-            print("Mouse is moving (x,y) = " + str(event['mouseX']) + " , " + str(event['mouseY']))
-
-        if (event['State'] == 1):  # left mouse clicked
-            print("Left mouse clicked")
-
-        if (event['State'] == 2):  # left mouse released
-            print("Left mouse released")
-
-        if (event['State'] == 3):  # right mouse released
-            print("Right mouse clicked")
-
-        if (event['State'] == 4):  # right mouse released
-            print("Right mouse released")
-
-        if (event['State'] == 5):  # wheel clicked
-            print("Mouse wheel clicked")
-
-        if (event['State'] == 6):  # wheel released
-            print("Mouse wheel released")
-
-    def onScriptEvent(self, event):
-        pass
-
-    def onEvent(self, event):
-        pass
 
 
 def getAngle(x1, x2, x3, theta1):
@@ -280,10 +213,7 @@ class ServoMotor(Sofa.Prefab):
                         position=[[-0.43282318], [1.2], [1.6072389], [1.2]],
                         rest_position=self.getData('angleIn').getLinkPath(),
                         )
-        angle.addObject('RestShapeSpringsForceField', points=0, stiffness=1e9)
-        angle.addObject('RestShapeSpringsForceField', points=1, stiffness=1e9)
-        angle.addObject('RestShapeSpringsForceField', points=2, stiffness=1e9)
-        angle.addObject('RestShapeSpringsForceField', points=3, stiffness=1e9)
+        angle.addObject('RestShapeSpringsForceField', points=[0, 1, 2, 3], stiffness=1e9)
         angle.addObject('UniformMass', totalMass=0.01)
 
         # 关节轮 armWheel0 (非实体部分)
