@@ -147,8 +147,7 @@ def CreateSensor(name="Sensor", filepath='', rotation=None, translation=None,
     collisionmodel.addObject('LineCollisionModel', group=1)
     collisionmodel.addObject('TriangleCollisionModel', group=1)
     collisionmodel.addObject('RigidMapping',
-                             input=mechanicalModel.dofs.getLinkPath(),
-
+                             input=mechanicalModel.dofs.getLinkPath()
                              )
 
     return self
