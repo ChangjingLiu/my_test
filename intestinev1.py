@@ -52,7 +52,7 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
                               name="linearElasticBehavior",
                               youngModulus=1000,
                               poissonRatio=0.4)
-    mechanicalmodel.addObject("MeshSpringForceField",name="Springs",stiffness=1000,damping=4 )
+    mechanicalmodel.addObject("MeshSpringForceField",name="Springs",stiffness=500,damping=4 )
 
     # Visual model 视觉模型用stl会好看些
     visualmodel = Sofa.Core.Node("VisualModel")
@@ -95,7 +95,7 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
     collisionmodel.addObject('BarycentricMapping',
                              input=mechanicalmodel.dofs.getLinkPath()
                              )
-    collisionmodel.addObject("SurfacePressureForceField", pressure=500,
+    collisionmodel.addObject("SurfacePressureForceField", pressure=150,
                              # pulseMode="true",pressureSpeed=200
                              )
 
@@ -103,7 +103,7 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
 
 
 def createScene(rootNode):
-    scene = Scene(rootNode, gravity=[0.0, -9810.0, 0.0],dt=0.001,
+    scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0],dt=0.001,
                   plugins=['SofaSparseSolver', 'SofaOpenglVisual'],
                   iterative=False)
     scene.addMainHeader()
