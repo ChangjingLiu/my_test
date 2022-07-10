@@ -26,15 +26,26 @@ class EmptyController(Sofa.Core.Controller):
         # 指针获取节点
         self.ServoMotor = kwargs["ServoMotor"]
         self.scene=kwargs["scene"]
+        self.intestineCollision=kwargs["intestineCollision"]
         self.stepsize = 0.02
+        self.steppressure = 5
 
     def onKeypressedEvent(self, event):
         key = event['key']
         # print(self.scene.gravity[1])
         if ord(key)==49:
+            print("You pressed the 1 key")
             self.scene.gravity[1]=-9810
         if ord(key)==50:
             self.scene.gravity[1] =0
+        if ord(key)==51:
+            self.intestineCollision.SurfacePressureForceField.pressure.value=self.intestineCollision.SurfacePressureForceField.pressure.value+self.steppressure
+            print(self.intestineCollision.SurfacePressureForceField.pressure.value)
+            print("You pressed the 3 key")
+        if ord(key)==52:
+            self.intestineCollision.SurfacePressureForceField.pressure.value = self.intestineCollision.SurfacePressureForceField.pressure.value - self.steppressure
+            print(self.intestineCollision.SurfacePressureForceField.pressure.value)
+            print("You pressed the 4 key")
         if ord(key) == 19:  # up
             print("You pressed the Up key")
             # wa[1] = abs(math.cos(factor * 2 * math.pi)) + 0.2  # create angle
@@ -476,7 +487,7 @@ class ServoMotor(Sofa.Prefab):
 def createScene(rootNode):
     import math
     from splib3.animation import animate
-    scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0], dt=0.001,
+    scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0], dt=0.0001,
                   plugins=['SofaSparseSolver', 'SofaOpenglVisual', 'SofaSimpleFem', 'SofaDeformable', 'SofaEngine',
                            'SofaGraphComponent', 'SofaRigid', 'SoftRobots'],
                   iterative=False)
@@ -492,7 +503,7 @@ def createScene(rootNode):
     scene.addObject('RuleBasedContactManager', responseParams="mu=" + str(frictionCoef),
                     name='Response', response='FrictionContactConstraint')
     scene.addObject('LocalMinDistance',
-                    alarmDistance=1, contactDistance=0.2,
+                    alarmDistance=2, contactDistance=0.1,
                     angleCone=0.01)
     scene.addObject('FreeMotionAnimationLoop')
     scene.addObject('GenericConstraintSolver', tolerance=1e-6, maxIterations=1000,
@@ -524,7 +535,9 @@ def createScene(rootNode):
     box2.BoxROI.drawBoxes = True
 
     # scene.Simulation.addChild(scene.Modelling.ServoMotor.box1)
-    scene.addObject(EmptyController(name='controller', ServoMotor=scene.Simulation.ServoMotor,scene=scene))
+    scene.addObject(EmptyController(name='controller', ServoMotor=scene.Simulation.ServoMotor,scene=scene,
+                                    intestineCollision=scene.Simulation.Intestine.CollisionModel
+                                    ))
     return scene
 
 
