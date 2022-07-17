@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
+    <content url="file://$USER_HOME$/sofa/build/master/lib/python3/site-packages" />
+    <content url="file://$USER_HOME$/sofa/other_plugins/STLIB/python3/src/splib3" />
+    <content url="file://$USER_HOME$/sofa/other_plugins/STLIB/python3/src/stlib3" />
+    <content url="file://$MODULE_DIR$" />
     <content url="file://D:/Software_download/sofa_22/SOFA_robosoft2022_python-3.8_Windows/plugins/STLIB/lib/python3/site-packages" />
     <content url="file://D:/Software_download/sofa_22/SOFA_robosoft2022_python-3.8_Windows/plugins/SofaPython3/lib/python3/site-packages" />
     <content url="file://D:/software_download/sofa_22/SOFA_robosoft2022_python-3.8_Windows/plugins/SofaPython3/lib/python3/site-packages">
       <sourceFolder url="file://D:/software_download/sofa_22/SOFA_robosoft2022_python-3.8_Windows/plugins/SofaPython3/lib/python3/site-packages" isTestSource="false" />
     </content>
-    <content url="file://$MODULE_DIR$" />
     <orderEntry type="jdk" jdkName="Python 3.8" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

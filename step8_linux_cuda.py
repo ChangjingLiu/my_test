@@ -9,7 +9,7 @@ import os, sys
 import Sofa
 from stlib3.scene import Scene
 import numpy as np
-from intestinev1 import Intestinev1
+from intestine_linux_cuda import Intestine_linux_cuda
 
 dirPath = os.path.dirname(os.path.abspath(__file__)) + '/'
 from stlib3.visuals import VisualModel
@@ -27,7 +27,7 @@ class EmptyController(Sofa.Core.Controller):
         self.ServoMotor = kwargs["ServoMotor"]
         self.scene=kwargs["scene"]
         self.intestineCollision=kwargs["intestineCollision"]
-        self.stepsize = 0.02
+        self.stepsize = 0.01
         self.steppressure = 5
 
     def onKeypressedEvent(self, event):
@@ -109,6 +109,7 @@ def CreateArm(name="Intestine", filepath='', position=None, translation=None, ro
                               translation=translation,
                               rotation=rotation,
                               position=position,
+
                               )
     # upperArmLongMechanicalModel.addObject('FixedConstraint')
     mechanicalModel.addObject('UniformMass', totalMass=0.1)
@@ -489,7 +490,7 @@ def createScene(rootNode):
     from splib3.animation import animate
     scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0], dt=0.0001,
                   plugins=['SofaSparseSolver', 'SofaOpenglVisual', 'SofaSimpleFem', 'SofaDeformable', 'SofaEngine',
-                           'SofaGraphComponent', 'SofaRigid', 'SoftRobots',],
+                           'SofaGraphComponent', 'SofaRigid', 'SoftRobots','SofaCUDA'],
                   iterative=False)
     scene.addMainHeader()
     # Add ContactHeader
@@ -499,12 +500,16 @@ def createScene(rootNode):
     scene.addObject('DefaultPipeline')
     scene.addObject('BruteForceBroadPhase')
     scene.addObject('BVHNarrowPhase')
+
+    # cuda加速 CudaProximityIntersection
+    scene.addObject('CudaProximityIntersection',
+                    alarmDistance=0.2, contactDistance=0.01,)
     frictionCoef = 0.8
     scene.addObject('RuleBasedContactManager', responseParams="mu=" + str(frictionCoef),
                     name='Response', response='FrictionContactConstraint')
-    scene.addObject('LocalMinDistance',
-                    alarmDistance=2, contactDistance=0.1,
-                    angleCone=0.01)
+    # scene.addObject('LocalMinDistance',
+    #                 alarmDistance=2, contactDistance=0.1,
+    #                 angleCone=0.01)
     scene.addObject('FreeMotionAnimationLoop')
     scene.addObject('GenericConstraintSolver', tolerance=1e-6, maxIterations=1000,
                     computeConstraintForces=True, multithreading=True)
@@ -515,7 +520,7 @@ def createScene(rootNode):
     # scene.Modelling.addChild(ServoMotor(name="ServoMotor"))
 
     # simulation model
-    scene.Simulation.addChild(Intestinev1(rotation=[90.0, 0.0, 0.0],translation=[5,50,28], color=[1.0, 1.0, 1.0, 0.5]))
+    scene.Simulation.addChild(Intestine_linux_cuda(rotation=[90.0, 0.0, 0.0],translation=[5,50,28], color=[1.0, 1.0, 1.0, 0.5]))
     scene.Simulation.addChild(ServoMotor(name="ServoMotor", translation=[0, 0, 0], rotation=[0, 0, 0]))
     # animate(animation, {'target': scene.Simulation.ServoMotor}, duration=10., mode='loop')
     # scene.Simulation.ServoMotor.Articulation.ServoWheel.dofs.showObject = True
