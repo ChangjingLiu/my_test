@@ -85,8 +85,8 @@ def Intestine_linux_cuda(name="Intestine", rotation=None, translation=None, colo
     #                                   )
     # collision model
     collisionmodel = self.addChild("CollisionModel")
-    translation[1]=translation[1]-40
-    collisionmodel.addObject('MeshSTLLoader', name="loader", filename="data/Intestine/IntestineV1_collision.stl",
+    # translation[1]=translation[1]-40
+    collisionmodel.addObject('MeshSTLLoader', name="loader", filename="data/Intestine/IntestineV1.stl",
                              rotation=rotation, translation=translation
                              )
     collisionmodel.addObject('MeshTopology', src="@loader")

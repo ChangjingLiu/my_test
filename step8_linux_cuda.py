@@ -502,14 +502,14 @@ def createScene(rootNode):
     scene.addObject('BVHNarrowPhase')
 
     # cuda加速 CudaProximityIntersection
-    scene.addObject('CudaProximityIntersection',
-                    alarmDistance=0.2, contactDistance=0.01,)
+    # scene.addObject('CudaProximityIntersection',
+    #                 alarmDistance=0.2, contactDistance=0.01,)
     frictionCoef = 0.8
     scene.addObject('RuleBasedContactManager', responseParams="mu=" + str(frictionCoef),
                     name='Response', response='FrictionContactConstraint')
-    # scene.addObject('LocalMinDistance',
-    #                 alarmDistance=2, contactDistance=0.1,
-    #                 angleCone=0.01)
+    scene.addObject('LocalMinDistance',
+                    alarmDistance=2, contactDistance=0.1,
+                    angleCone=0.01)
     scene.addObject('FreeMotionAnimationLoop')
     scene.addObject('GenericConstraintSolver', tolerance=1e-6, maxIterations=1000,
                     computeConstraintForces=True, multithreading=True)

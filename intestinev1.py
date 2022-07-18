@@ -134,5 +134,6 @@ def createScene(rootNode):
 if __name__ == '__main__':
     # runSofa.exe路径
     path = "D:/Software_download/sofa_22/SOFA_robosoft2022_python-3.8_Windows/bin/runSofa"
+    path1 = "/home/lcj/sofa/build/master/bin/runSofa"
     # 使用Sofa运行该文件
-    os.system(path + " " + sys.argv[0])
+    os.system(path1 + " " + sys.argv[0])
