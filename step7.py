@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 '''
-Step 6:
+Step 7:
 在这一步中，实现了
 1.ASS_robot 添加传感器模型
 2.测试碰撞模型
+
 '''
 import os, sys
 import Sofa
@@ -27,7 +28,7 @@ class EmptyController(Sofa.Core.Controller):
         self.ServoMotor = kwargs["ServoMotor"]
         self.scene=kwargs["scene"]
         self.intestineCollision=kwargs["intestineCollision"]
-        self.stepsize = 0.02
+        self.stepsize = 0.01
         self.steppressure = 5
 
     def onKeypressedEvent(self, event):
@@ -139,7 +140,10 @@ def CreateSensor(name="Sensor", filepath='', rotation=None, translation=None,
         color = [0.5, 0.8, 0.1, 0.3]
     self = Sofa.Core.Node(name)
     self.addObject('EulerImplicitSolver')
-    self.addObject('CGLinearSolver')
+    # self.addObject('CGLinearSolver')
+    self.addObject('SparseLDLSolver')
+    # self.addObject('AsyncSparseLDLSolver')
+
     mechanicalModel = self.addChild("MechanicalModel")
     # upperArmLongMechanicalModel = upperArmLong.addChild("MechanicalModel")
     mechanicalModel.addObject('MechanicalObject',
@@ -248,7 +252,7 @@ class ServoMotor(Sofa.Prefab):
                            # input2='@../../Axis1/MechanicalModel/dofs',
                            output="@./dofs")
 
-        angle.addObject('ArticulatedHierarchyContainer', printLog=False)
+        angle.addObject('ArticulatedHierarchyContainer')
         articulationCenters = angle.addChild('ArticulationCenters')
         #
         articulationCenter0 = articulationCenters.addChild('ArticulationCenter0')
@@ -508,7 +512,9 @@ def createScene(rootNode):
                     angleCone=0.01)
     scene.addObject('FreeMotionAnimationLoop')
     scene.addObject('GenericConstraintSolver', tolerance=1e-6, maxIterations=1000,
-                    computeConstraintForces=True, multithreading=True)
+                    computeConstraintForces=True,
+                    multithreading=True
+                    )
 
     scene.Simulation.addObject('GenericConstraintCorrection')
     # scene.Simulation.addObject('LinearSolverConstraintCorrection')

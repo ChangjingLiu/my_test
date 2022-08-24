@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 '''
-Step 7:
+intestinev1:
 在这一步中，实现了
-1.重建更细致的肠道模型
-2.超粘性弹性体
-3.加压
-4.加入机器人模型
+1.肠道模型的物理模型，碰撞模型和视觉模型
+为提高仿真速度，同时不牺牲过多的精度，可参考 https://github.com/sofa-framework/doc/blob/master/15_Using_SOFA/32_Performances/20_Improve_performances.md
+为此有如下操作：
+1.FEM模型降阶
+2.将 TetrahedronFEMForceField 改为 TriangularFEMForceFieldOptim
+3.减少碰撞类型
 '''
 import os
 import sys
 import Sofa
-# from stlib3.physics.collision import CollisionMesh
-import stlib3
+from stlib3.physics.collision import CollisionMesh
 from stlib3.scene import Scene
 from fixingbox import FixingBox
 
@@ -36,7 +37,7 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
                               name='loader',
                               rotation=rotation,
                               translation=translation,
-                              filename='data/Intestine/IntestineV1.msh')
+                              filename='data/Intestine/IntestineV1-Tube.msh')
     mechanicalmodel.addObject('TetrahedronSetTopologyContainer',
                               src='@loader',
                               name='container')
@@ -50,11 +51,11 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
                               totalMass=0.5)
     # 有限元组件FEM ForceField components
     mechanicalmodel.addObject(
-                              # 'TetrahedronFEMForceField',
-                              'TriangularFEMForceFieldOptim',
-                              name="linearElasticBehavior",
-                              youngModulus=500,
-                              poissonRatio=0.4)
+                                # 'TetrahedronFEMForceField',
+                                'TriangularFEMForceFieldOptim',
+                                name="linearElasticBehavior",
+                                youngModulus=500,
+                                poissonRatio=0.4)
     # mechanicalmodel.addObject("MeshSpringForceField",name="Springs",stiffness=10,damping=1 )
 
     # Visual model 视觉模型用stl会好看些
@@ -84,17 +85,18 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
     #                                   # collisionGroup=1
     #                                   )
     # collision model
+
     collisionmodel = self.addChild("CollisionModel")
     collisionmodel.addObject('MeshSTLLoader', name="loader", filename="data/Intestine/IntestineV1.stl",
                              rotation=rotation, translation=translation
                              )
     collisionmodel.addObject('MeshTopology', src="@loader")
-    collisionmodel.addObject('MechanicalObject',src="@loader")
+    collisionmodel.addObject('MechanicalObject', src="@loader")
 
     # 碰撞组为
-    collisionmodel.addObject('PointCollisionModel')
-    collisionmodel.addObject('LineCollisionModel')
-    collisionmodel.addObject('TriangleCollisionModel')
+    collisionmodel.addObject('PointCollisionModel',selfCollision=True)
+    collisionmodel.addObject('LineCollisionModel',selfCollision=True)
+    collisionmodel.addObject('TriangleCollisionModel',selfCollision=True)
     collisionmodel.addObject('BarycentricMapping',
                              input=mechanicalmodel.dofs.getLinkPath()
                              )
@@ -107,10 +109,9 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
 
 
 def createScene(rootNode):
-    scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0],dt=0.0001,
+    scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0], dt=0.0001,
                   plugins=['SofaSparseSolver', 'SofaOpenglVisual'],
-                  iterative=False
-                  )
+                  iterative=False)
     scene.addMainHeader()
     scene.addObject('DefaultAnimationLoop')
     scene.addObject('DefaultVisualManagerLoop')
