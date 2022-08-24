@@ -26,8 +26,8 @@ class EmptyController(Sofa.Core.Controller):
         # 指针获取节点
         self.ServoMotor = kwargs["ServoMotor"]
         self.scene=kwargs["scene"]
-        self.intestineCollision=kwargs["intestineCollision"]
-        self.stepsize = 0.01
+        # self.intestineCollision=kwargs["intestineCollision"]
+        self.stepsize = 0.05
         self.steppressure = 5
 
     def onKeypressedEvent(self, event):
@@ -39,12 +39,12 @@ class EmptyController(Sofa.Core.Controller):
         if ord(key)==50:
             self.scene.gravity[1] =0
         if ord(key)==51:
-            self.intestineCollision.SurfacePressureForceField.pressure.value=self.intestineCollision.SurfacePressureForceField.pressure.value+self.steppressure
-            print(self.intestineCollision.SurfacePressureForceField.pressure.value)
+            # self.intestineCollision.SurfacePressureForceField.pressure.value=self.intestineCollision.SurfacePressureForceField.pressure.value+self.steppressure
+            # print(self.intestineCollision.SurfacePressureForceField.pressure.value)
             print("You pressed the 3 key")
         if ord(key)==52:
-            self.intestineCollision.SurfacePressureForceField.pressure.value = self.intestineCollision.SurfacePressureForceField.pressure.value - self.steppressure
-            print(self.intestineCollision.SurfacePressureForceField.pressure.value)
+            # self.intestineCollision.SurfacePressureForceField.pressure.value = self.intestineCollision.SurfacePressureForceField.pressure.value - self.steppressure
+            # print(self.intestineCollision.SurfacePressureForceField.pressure.value)
             print("You pressed the 4 key")
         if ord(key) == 19:  # up
             print("You pressed the Up key")
@@ -492,10 +492,10 @@ class ServoMotor(Sofa.Prefab):
 def createScene(rootNode):
     import math
     from splib3.animation import animate
-    scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0], dt=0.0001,
+    scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0], dt=0.001,
                   plugins=['SofaSparseSolver', 'SofaOpenglVisual', 'SofaSimpleFem', 'SofaDeformable', 'SofaEngine',
                            'SofaGraphComponent', 'SofaRigid', 'SoftRobots'],
-                  # iterative=True
+                  # iterative=False
                   )
     scene.addMainHeader()
     scene.addObject('EulerImplicitSolver', rayleighMass = "0.05",
@@ -534,26 +534,14 @@ def createScene(rootNode):
     # simulation model
     scene.Simulation.addChild(Intestine_linux_cuda(rotation=[90.0, 0.0, 0.0],translation=[5,50,28], color=[1.0, 1.0, 1.0, 0.5]))
     scene.Simulation.addChild(ServoMotor(name="ServoMotor", translation=[0, 0, 0], rotation=[0, 0, 0]))
-    # animate(animation, {'target': scene.Simulation.ServoMotor}, duration=10., mode='loop')
-    # scene.Simulation.ServoMotor.Articulation.ServoWheel.dofs.showObject = True
-
-    # box1 = FixingBox(scene.Simulation,
-    #                  scene.Simulation.Intestine.MechanicalModel,
-    #                  name="box1",
-    #                  translation=[5, 60, 28],
-    #                  scale=[30., 30., 30.])
-    # box1.BoxROI.drawBoxes = True
-    #
     box2 = FixingBox(scene.Simulation,
                      scene.Simulation.Intestine.MechanicalModel,
                      name="box2",
                      translation=[5, -60, 28],
                      scale=[30., 30., 30.])
     box2.BoxROI.drawBoxes = True
-
-    # scene.Simulation.addChild(scene.Modelling.ServoMotor.box1)
     scene.addObject(EmptyController(name='controller', ServoMotor=scene.Simulation.ServoMotor,scene=scene,
-                                    intestineCollision=scene.Simulation.Intestine.CollisionModel
+                                    # intestineCollision=scene.Simulation.Intestine.CollisionModel
                                     ))
     return scene
 

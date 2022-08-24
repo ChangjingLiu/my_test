@@ -490,7 +490,8 @@ def createScene(rootNode):
     scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0], dt=0.0001,
                   plugins=['SofaSparseSolver', 'SofaOpenglVisual', 'SofaSimpleFem', 'SofaDeformable', 'SofaEngine',
                            'SofaGraphComponent', 'SofaRigid', 'SoftRobots'],
-                  iterative=False)
+                  iterative=False
+                  )
     scene.addMainHeader()
     # Add ContactHeader
     # choice 1
@@ -510,6 +511,8 @@ def createScene(rootNode):
                     computeConstraintForces=True, multithreading=True)
 
     scene.Simulation.addObject('GenericConstraintCorrection')
+    # scene.Simulation.addObject('LinearSolverConstraintCorrection')
+
     scene.Settings.mouseButton.stiffness = 0.1
     scene.VisualStyle.displayFlags = "showBehavior showCollision"
     # scene.Modelling.addChild(ServoMotor(name="ServoMotor"))
@@ -544,5 +547,6 @@ def createScene(rootNode):
 if __name__ == '__main__':
     # runSofa.exe路径
     path = "D:/Software_download/sofa_22/SOFA_robosoft2022_python-3.8_Windows/bin/runSofa"
+    path1 ="F:/code_repo/sofa/build/bin/RelWithDebInfo/runSofa"
     # 使用Sofa运行该文件
-    os.system(path + " " + sys.argv[0])
+    os.system(path1 + " " + sys.argv[0])

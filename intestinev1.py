@@ -10,7 +10,8 @@ Step 7:
 import os
 import sys
 import Sofa
-from stlib3.physics.collision import CollisionMesh
+# from stlib3.physics.collision import CollisionMesh
+import stlib3
 from stlib3.scene import Scene
 from fixingbox import FixingBox
 
@@ -48,11 +49,13 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
                               name="mass",
                               totalMass=0.5)
     # 有限元组件FEM ForceField components
-    mechanicalmodel.addObject('TetrahedronFEMForceField',
+    mechanicalmodel.addObject(
+                              # 'TetrahedronFEMForceField',
+                              'TriangularFEMForceFieldOptim',
                               name="linearElasticBehavior",
                               youngModulus=500,
                               poissonRatio=0.4)
-    mechanicalmodel.addObject("MeshSpringForceField",name="Springs",stiffness=10,damping=1 )
+    # mechanicalmodel.addObject("MeshSpringForceField",name="Springs",stiffness=10,damping=1 )
 
     # Visual model 视觉模型用stl会好看些
     visualmodel = Sofa.Core.Node("VisualModel")
@@ -106,7 +109,8 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
 def createScene(rootNode):
     scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0],dt=0.0001,
                   plugins=['SofaSparseSolver', 'SofaOpenglVisual'],
-                  iterative=False)
+                  iterative=False
+                  )
     scene.addMainHeader()
     scene.addObject('DefaultAnimationLoop')
     scene.addObject('DefaultVisualManagerLoop')
