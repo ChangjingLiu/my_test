@@ -30,7 +30,8 @@ def Particles(name="Particles", rotation=None, translation=None, color=None):
 
     self = Sofa.Core.Node(name)
 
-    self.addObject('EulerImplicitSolver')
+    # self.addObject('EulerImplicitSolver')
+    self.addObject('EulerExplicitSolver', name='odeExplicitSolver')
     self.addObject('CGLinearSolver')
 
     # mechanicalmodel
@@ -106,7 +107,8 @@ def Particles(name="Particles", rotation=None, translation=None, color=None):
 def createScene(rootNode):
     scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0], dt=0.01,
                   plugins=['SofaSparseSolver', 'SofaOpenglVisual', 'SofaSimpleFem', 'SofaDeformable', 'SofaEngine',
-                           'SofaGraphComponent', 'SofaRigid', 'SoftRobots'],
+                           'SofaGraphComponent', 'SofaRigid', 'SoftRobots','SofaExplicitOdeSolver','SofaSphFluid',
+                           'SofaBoundaryCondition',"SofaMeshCollision"],
                   iterative=False
                   )
     scene.addMainHeader()
@@ -118,8 +120,12 @@ def createScene(rootNode):
     scene.addObject('BruteForceBroadPhase')
     scene.addObject('BVHNarrowPhase')
     frictionCoef = 0.8
-    scene.addObject('RuleBasedContactManager', responseParams="mu=" + str(frictionCoef),
-                    name='Response', response='FrictionContactConstraint')
+    scene.addObject('DefaultContactManager')
+    # scene.addObject('RuleBasedContactManager', responseParams="mu=" + str(frictionCoef),
+    #                 name='Response', response='FrictionContactConstraint')
+    scene.addObject('NewProximityIntersection',
+                    alarmDistance=0.1,
+                    contactDistance=0.05)
     scene.addObject('LocalMinDistance',
                     alarmDistance=2, contactDistance=0.1,
                     angleCone=0.01)
@@ -136,11 +142,11 @@ def createScene(rootNode):
     scene.VisualStyle.displayFlags = "showBehavior showCollision"
     # scene.Modelling.addChild(ServoMotor(name="ServoMotor"))
 
-    Floor(scene.Modelling,
-          color=[1.0, 0.0, 0.0],
-          translation=[0.0, -20.0, 0.0],
-          rotation=[0., 0., 10.],
-          isAStaticObject=True)
+    # Floor(scene.Modelling,
+    #       color=[1.0, 0.0, 0.0],
+    #       translation=[0.0, -20.0, 0.0],
+    #       rotation=[0., 0., 10.],
+    #       isAStaticObject=True)
 
     # simulation model
     scene.Simulation.addChild(Particles())

@@ -43,6 +43,7 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
                               name='container')
     mechanicalmodel.addObject('MechanicalObject',
                               name='dofs',
+                              template='Vec3d',
                               position=mechanicalmodel.loader.position.getLinkPath(),
                               showObject=True,
                               showObjectScale=5.0)
@@ -91,12 +92,18 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
                              rotation=rotation, translation=translation
                              )
     collisionmodel.addObject('MeshTopology', src="@loader")
-    collisionmodel.addObject('MechanicalObject', src="@loader")
+    collisionmodel.addObject('MechanicalObject', src="@loader",template='Vec3d',)
 
     # 碰撞组为
-    collisionmodel.addObject('PointCollisionModel',selfCollision=True)
-    collisionmodel.addObject('LineCollisionModel',selfCollision=True)
-    collisionmodel.addObject('TriangleCollisionModel',selfCollision=True)
+    collisionmodel.addObject('PointCollisionModel',
+                             # selfCollision=True
+                             )
+    collisionmodel.addObject('LineCollisionModel',
+                             # selfCollision=True
+                             )
+    collisionmodel.addObject('TriangleCollisionModel',
+                             # selfCollision=True
+                             )
     collisionmodel.addObject('BarycentricMapping',
                              input=mechanicalmodel.dofs.getLinkPath()
                              )
@@ -111,7 +118,8 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
 def createScene(rootNode):
     scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0], dt=0.0001,
                   plugins=['SofaSparseSolver', 'SofaOpenglVisual'],
-                  iterative=False)
+                  iterative=False
+                  )
     scene.addMainHeader()
     scene.addObject('DefaultAnimationLoop')
     scene.addObject('DefaultVisualManagerLoop')
