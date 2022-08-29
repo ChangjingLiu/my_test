@@ -19,24 +19,24 @@ import Sofa
 from stlib3.scene import Scene
 from stlib3.scene.contactheader import ContactHeader
 from stlib3.physics.rigid import Floor, Cube
-import numpy as np
 from intestinev1 import Intestinev1
+from fixingbox import FixingBox
+import numpy as np
 
 dirPath = os.path.dirname(os.path.abspath(__file__)) + '/'
 from stlib3.visuals import VisualModel
-from fixingbox import FixingBox
 
 
 def Particles(name="Particles", rotation=None, translation=None, color=None):
     self = Sofa.Core.Node(name)
 
-    # self.addObject("EulerExplicitSolver", symplectic=1)
-    self.addObject('EulerImplicitSolver')
+    self.addObject("EulerExplicitSolver", symplectic=1)
+    # self.addObject('EulerImplicitSolver')
     self.addObject('CGLinearSolver', name='LinearSolver')
     mechanicalModel = self.addChild("MechanicalModel")
-    mechanicalModel.addObject("MechanicalObject", name="MModel")
+    mechanicalModel.addObject("MechanicalObject", name="MModel",template='CudaVec3')
     mechanicalModel.addObject("RegularGridTopology",
-                        nx=5, ny=40, nz=5,
+                        nx=5, ny=5, nz=5,
                         xmin=-1.5, xmax=0,
                         ymin=-3, ymax=12,
                         zmin=-1.5, zmax=0,
@@ -44,21 +44,21 @@ def Particles(name="Particles", rotation=None, translation=None, color=None):
                               )
     mechanicalModel.addObject("UniformMass", name="M1", vertexMass=1)
     mechanicalModel.addObject("SpatialGridContainer", cellWidth=0.75)
-    mechanicalModel.addObject("SPHFluidForceField", radius=0.745,
+    mechanicalModel.addObject("SPHFluidForceField", template='Vec3d',radius=0.745,
                         density=15, kernelType=1, viscosityType=2,
                         viscosity=10, pressure=1000, surfaceTension=-1000)
 
     mechanicalModel.addObject("PlaneForceField", name='p1', normal=[1, 0, 0], d=-4, showPlane=1)
     mechanicalModel.addObject("PlaneForceField", name='p2', normal=[-1, 0, 0], d=-4, showPlane=1)
-    mechanicalModel.addObject("PlaneForceField", name='p3', normal=[0.5, 1, 0.1], d=-4, showPlane=1)
+    # mechanicalModel.addObject("PlaneForceField", name='p3', normal=[0.5, 1, 0.1], d=-4, showPlane=1)
     mechanicalModel.addObject("PlaneForceField", name='p4', normal=[0, 0, 1], d=-4, showPlane=1)
     mechanicalModel.addObject("PlaneForceField", name='p5', normal=[0, 0, -1], d=-4, showPlane=1)
 
     # 碰撞模型
     collisionModel = self.addChild("CollisionModel")
-    collisionModel.addObject('MechanicalObject', template='Vec3d', )
+    collisionModel.addObject('MechanicalObject', template='Vec3d' )
     collisionModel.addObject("RegularGridTopology",
-                              nx=5, ny=40, nz=5,
+                              nx=5, ny=5, nz=5,
                               xmin=-1.5, xmax=0,
                               ymin=-3, ymax=12,
                               zmin=-1.5, zmax=0,
@@ -73,7 +73,9 @@ def Particles(name="Particles", rotation=None, translation=None, color=None):
                              )
     return self
 
-
+def ParticleSource(name="Particles", rotation=None, translation=None, color=None):
+    self = Sofa.Core.Node(name)
+    return self
 def createScene(rootNode):
     # rootNode.findData('gravity').value = [0.0, -10.0, 0.0];
     # rootNode.findData('dt').value = 0.01
@@ -129,11 +131,11 @@ def createScene(rootNode):
     scene.VisualStyle.displayFlags = "showBehaviorModels showForceFields showCollisionModels"
 
     scene.Simulation.addChild(Particles())
-    # Floor(scene.Modelling,
-    #       color=[1.0, 0.0, 0.0],
-    #       translation=[0.0, -10.0, 0.0],
-    #       rotation=[0., 0., 10.],
-    #       isAStaticObject=True)
+    Floor(scene.Modelling,
+          color=[1.0, 0.0, 0.0],
+          translation=[0.0, -10.0, 0.0],
+          rotation=[0., 0., 10.],
+          isAStaticObject=True)
     # rootNode.addChild(Particles())
 
     return rootNode
