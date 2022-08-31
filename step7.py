@@ -371,7 +371,8 @@ class ServoMotor(Sofa.Prefab):
         # 传感器部分
         # sensor in upperArmLong
         sensors = self.addChild("Sensors")
-        sensor0 = sensors.addChild(CreateSensor(name='Sensor0', filepath='data/Ass_robot/sofa_model/sensor-Cube.stl',
+        # (np.pi / 2 - np.arcsin(2.25 / 30.5)) / np.pi * 180
+        sensor0 = sensors.addChild(CreateSensor(name='Sensor0', filepath='data/Ass_robot/sofa_model/sensor_plane.stl',
                                                 rotation=[0.0, (np.pi / 2 - np.arcsin(2.25 / 30.5)) / np.pi * 180, 0.0],
                                                 collisiontranslation=[5.67, -4.5, 3.05],
                                                 # translation=[3.05, -4.5, -5.67]

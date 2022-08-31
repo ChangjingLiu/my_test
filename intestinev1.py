@@ -47,6 +47,7 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
                               position=mechanicalmodel.loader.position.getLinkPath(),
                               showObject=True,
                               showObjectScale=5.0)
+
     mechanicalmodel.addObject('UniformMass',
                               name="mass",
                               totalMass=0.5)
@@ -54,6 +55,7 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
     mechanicalmodel.addObject(
                                 # 'TetrahedronFEMForceField',
                                 'TriangularFEMForceFieldOptim',
+                                # 'FastTetrahedralCorotationalForceField',
                                 name="linearElasticBehavior",
                                 youngModulus=500,
                                 poissonRatio=0.4)
@@ -78,6 +80,8 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
                           input=mechanicalmodel.dofs.getLinkPath(),
                           output=visualmodel.renderer.getLinkPath())
 
+
+
     # 碰撞模型
     # Collision Object for the Cube
     # self.addCollision = CollisionMesh(mechanicalmodel,
@@ -86,9 +90,40 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
     #                                   # collisionGroup=1
     #                                   )
     # collision model
+    collisionmodelInner = self.addChild("CollisionModel_inner")
+    collisionmodelInner.addObject('MeshSTLLoader', name="loader",
+                                  filename="data/Intestine/IntestineV1_inner_collision.stl",
+                                  rotation=rotation, translation=translation
+                                  )
+    collisionmodelInner.addObject('MeshTopology', src="@loader")
+    collisionmodelInner.addObject('MechanicalObject', src="@loader", template='Vec3d', )
 
+    # 碰撞组为
+    collisionmodelInner.addObject('PointCollisionModel',
+                                  # selfCollision=True
+                                  )
+    collisionmodelInner.addObject('LineCollisionModel',
+                                  # selfCollision=True
+                                  )
+    collisionmodelInner.addObject('TriangleCollisionModel',
+                                  # selfCollision=True
+                                  )
+    collisionmodelInner.addObject('BarycentricMapping',
+                                  input=mechanicalmodel.dofs.getLinkPath()
+                                  )
+    collisionmodelInner.addObject("SurfacePressureForceField", pressure=0,
+                                  # pulseMode="true",
+                                  # pressureSpeed=0.1
+                                  )
+    # collisionmodelInner.addObject('TaitSurfacePressureForceField', name='pressure',
+    #                           gamma=7, B=1, injectedVolume=0.00001,
+    #                           )
+
+
+    c_translation=translation
+    c_translation[1]=translation[1]-25;
     collisionmodel = self.addChild("CollisionModel")
-    collisionmodel.addObject('MeshSTLLoader', name="loader", filename="data/Intestine/IntestineV1.stl",
+    collisionmodel.addObject('MeshSTLLoader', name="loader", filename="data/Intestine/IntestineV1_outer_collision.stl",
                              rotation=rotation, translation=translation
                              )
     collisionmodel.addObject('MeshTopology', src="@loader")
@@ -111,6 +146,8 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
                              # pulseMode="true",
                              # pressureSpeed=0.1
                              )
+
+
 
     return self
 

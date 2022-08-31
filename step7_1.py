@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 '''
-Step 6:
+Step 7:
 在这一步中，实现了
 1.ASS_robot 添加传感器模型
 2.测试碰撞模型
+
 '''
 import os, sys
 import Sofa
 from stlib3.scene import Scene
 import numpy as np
-from intestine import Intestine
+from intestinev1 import Intestinev1
 
 dirPath = os.path.dirname(os.path.abspath(__file__)) + '/'
 from stlib3.visuals import VisualModel
@@ -25,10 +26,37 @@ class EmptyController(Sofa.Core.Controller):
         Sofa.Core.Controller.__init__(self, *args, **kwargs)
         # 指针获取节点
         self.ServoMotor = kwargs["ServoMotor"]
-        self.stepsize = 0.05
+        self.scene=kwargs["scene"]
+        self.intestineCollision=kwargs["intestineCollision"]
+        self.intestineCollisionInner = kwargs["intestineCollisionInner"]
+
+        self.stepsize = 0.01
+        self.steppressure = 5
 
     def onKeypressedEvent(self, event):
         key = event['key']
+        # print(self.scene.gravity[1])
+        if ord(key)==49:
+            print("You pressed the 1 key")
+            self.scene.gravity[1]=-9810
+        if ord(key)==50:
+            self.scene.gravity[1] =0
+        if ord(key)==51:
+            self.intestineCollision.SurfacePressureForceField.pressure.value=self.intestineCollision.SurfacePressureForceField.pressure.value+self.steppressure
+            print(self.intestineCollision.SurfacePressureForceField.pressure.value)
+            print("You pressed the 3 key")
+        if ord(key)==52:
+            self.intestineCollision.SurfacePressureForceField.pressure.value = self.intestineCollision.SurfacePressureForceField.pressure.value - self.steppressure
+            print(self.intestineCollision.SurfacePressureForceField.pressure.value)
+            print("You pressed the 4 key")
+        if ord(key)==53:
+            self.intestineCollisionInner.SurfacePressureForceField.pressure.value=self.intestineCollisionInner.SurfacePressureForceField.pressure.value+self.steppressure
+            print(self.intestineCollisionInner.SurfacePressureForceField.pressure.value)
+            print("You pressed the 5 key")
+        if ord(key)==54:
+            self.intestineCollisionInner.SurfacePressureForceField.pressure.value = self.intestineCollisionInner.SurfacePressureForceField.pressure.value - self.steppressure
+            print(self.intestineCollisionInner.SurfacePressureForceField.pressure.value)
+            print("You pressed the 6 key")
         if ord(key) == 19:  # up
             print("You pressed the Up key")
             # wa[1] = abs(math.cos(factor * 2 * math.pi)) + 0.2  # create angle
@@ -122,14 +150,17 @@ def CreateSensor(name="Sensor", filepath='', rotation=None, translation=None,
         color = [0.5, 0.8, 0.1, 0.3]
     self = Sofa.Core.Node(name)
     self.addObject('EulerImplicitSolver')
-    self.addObject('CGLinearSolver')
+    # self.addObject('CGLinearSolver')
+    self.addObject('SparseLDLSolver')
+    # self.addObject('AsyncSparseLDLSolver')
+
     mechanicalModel = self.addChild("MechanicalModel")
     # upperArmLongMechanicalModel = upperArmLong.addChild("MechanicalModel")
     mechanicalModel.addObject('MechanicalObject',
                               name='dofs',
                               size=1,
                               template='Rigid3d',
-                              showObject=True,
+                              # showObject=True,
                               showObjectScale=10,
                               rotation=rotation,
                               translation=translation, )
@@ -426,7 +457,7 @@ class ServoMotor(Sofa.Prefab):
                                                 rotation=[0.0, (-np.pi / 2 - np.arcsin(2.76 / 26.27)) / np.pi * 180,
                                                           180.0],
                                                 collisiontranslation=[6.77 - 26.27, -4.3 + 8.7,
-                                                                      -0.51 - 2.76 + 6.5 ],
+                                                                      -0.51 - 2.76 + 6.5],
                                                 # translation=[3.05, -4.5, -5.67]
                                                 ))
         sensor7.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
@@ -474,10 +505,11 @@ class ServoMotor(Sofa.Prefab):
 def createScene(rootNode):
     import math
     from splib3.animation import animate
-    scene = Scene(rootNode, gravity=[0.0, -9810, 0.0], dt=0.001,
+    scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0], dt=0.0001,
                   plugins=['SofaSparseSolver', 'SofaOpenglVisual', 'SofaSimpleFem', 'SofaDeformable', 'SofaEngine',
                            'SofaGraphComponent', 'SofaRigid', 'SoftRobots'],
-                  iterative=False)
+                  iterative=False
+                  )
     scene.addMainHeader()
     # Add ContactHeader
     # choice 1
@@ -486,42 +518,56 @@ def createScene(rootNode):
     scene.addObject('DefaultPipeline')
     scene.addObject('BruteForceBroadPhase')
     scene.addObject('BVHNarrowPhase')
-    frictionCoef = 0.5
+    frictionCoef = 0.8
     scene.addObject('RuleBasedContactManager', responseParams="mu=" + str(frictionCoef),
                     name='Response', response='FrictionContactConstraint')
     scene.addObject('LocalMinDistance',
-                    alarmDistance=4, contactDistance=0.2,
+                    alarmDistance=2, contactDistance=0.1,
                     angleCone=0.01)
     scene.addObject('FreeMotionAnimationLoop')
     scene.addObject('GenericConstraintSolver', tolerance=1e-6, maxIterations=1000,
-                    computeConstraintForces=True, multithreading=True)
+                    computeConstraintForces=True,
+                    multithreading=True
+                    )
 
     scene.Simulation.addObject('GenericConstraintCorrection')
+    # scene.Simulation.addObject('LinearSolverConstraintCorrection')
+
     scene.Settings.mouseButton.stiffness = 0.1
     scene.VisualStyle.displayFlags = "showBehavior showCollision"
     # scene.Modelling.addChild(ServoMotor(name="ServoMotor"))
 
     # simulation model
-    # scene.Simulation.addChild(Intestine(rotation=[90.0, 0.0, 0.0],translation=[20,20,30], color=[1.0, 1.0, 1.0, 0.5]))
+    scene.Simulation.addChild(Intestinev1(rotation=[90.0, 0.0, 0.0],translation=[5,50,28], color=[1.0, 1.0, 1.0, 0.5]))
     scene.Simulation.addChild(ServoMotor(name="ServoMotor", translation=[0, 0, 0], rotation=[0, 0, 0]))
     # animate(animation, {'target': scene.Simulation.ServoMotor}, duration=10., mode='loop')
     # scene.Simulation.ServoMotor.Articulation.ServoWheel.dofs.showObject = True
 
-    # box1 = FixingBox(scene.Simulation,
-    #                  scene.Simulation.Intestine.MechanicalModel,
-    #                  name="box1",
-    #                  translation=[20.0, 20.0, 30.0],
-    #                  scale=[30., 30., 30.])
-    # box1.BoxROI.drawBoxes = True
+    box1 = FixingBox(scene.Simulation,
+                     scene.Simulation.Intestine.MechanicalModel,
+                     name="box1",
+                     translation=[5, 60, 28],
+                     scale=[30., 30., 30.])
+    box1.BoxROI.drawBoxes = True
 
-    # box1.BoxROI.drawBoxes = True
+    box2 = FixingBox(scene.Simulation,
+                     scene.Simulation.Intestine.MechanicalModel,
+                     name="box2",
+                     translation=[5, -60, 28],
+                     scale=[30., 30., 30.])
+    box2.BoxROI.drawBoxes = True
+
     # scene.Simulation.addChild(scene.Modelling.ServoMotor.box1)
-    scene.addObject(EmptyController(name='controller', ServoMotor=scene.Simulation.ServoMotor))
+    scene.addObject(EmptyController(name='controller', ServoMotor=scene.Simulation.ServoMotor,scene=scene,
+                                    intestineCollision=scene.Simulation.Intestine.CollisionModel,
+                                    intestineCollisionInner=scene.Simulation.Intestine.CollisionModel_inner
+                                    ))
     return scene
 
 
 if __name__ == '__main__':
     # runSofa.exe路径
     path = "D:/Software_download/sofa_22/SOFA_robosoft2022_python-3.8_Windows/bin/runSofa"
+    path1 ="F:/code_repo/sofa/build/bin/RelWithDebInfo/runSofa"
     # 使用Sofa运行该文件
-    os.system(path + " " + sys.argv[0])
+    os.system(path1 + " " + sys.argv[0])
