@@ -546,7 +546,7 @@ def createScene(rootNode):
     box1 = FixingBox(scene.Simulation,
                      scene.Simulation.Intestine.MechanicalModel,
                      name="box1",
-                     translation=[5, 60, 28],
+                     translation=[5, 65, 28],
                      scale=[30., 30., 30.])
     box1.BoxROI.drawBoxes = True
 

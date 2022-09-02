@@ -80,20 +80,41 @@ def Particles(name="Particles", rotation=None, translation=None, size=None, nsiz
     collisionModel.addObject('PointCollisionModel',
                              # selfCollision=True
                              )
-    collisionModel.addObject('LineCollisionModel')
+    # collisionModel.addObject('LineCollisionModel')
     # collisionModel.addObject('TriangleCollisionModel')
-    # collisionModel.addObject("SphereCollisionModel", name="CollisionModel",
-    #                          listRadius="@[-2].listRadius",
-    #                          selfCollision=True,
-    #                          )
+    collisionModel.addObject("SphereCollisionModel", name="CollisionModel",
+                             listRadius="@[-2].listRadius",
+                             selfCollision=True,
+                             )
     collisionModel.addObject('BarycentricMapping',
                              input=mechanicalModel.MModel.getLinkPath()
                              )
+
     return self
 
 
 def ParticleSource(name="Particles", rotation=None, translation=None, color=None):
     self = Sofa.Core.Node(name)
+    self.addObject("EulerExplicitSolver", symplectic=1)
+    # self.addObject('EulerImplicitSolver')
+    self.addObject('CGLinearSolver', name='LinearSolver')
+    mechanicalModel = self.addChild("MechanicalModel")
+    mechanicalModel.addObject("MechanicalObject", name="MModel", template='Vec3d')
+    mechanicalModel.addObject("PointSetTopologyContainer", name="PointSetTopologyContainer",
+                              src=mechanicalModel.MModel.getLinkPath())
+    mechanicalModel.addObject("ParticleSource",name="Source",translation=[0,4,0],radius=[0.01,0.1,0.01],
+                              velocity='0.1',start=-0.1,stop=10,center=[0,0,0])
+    mechanicalModel.addObject("UniformMass", name="M1", vertexMass=1)
+
+    collisionModel = self.addChild("CollisionModel")
+    collisionModel.addObject('MechanicalObject', template='Vec3d')
+    collisionModel.addObject('PointCollisionModel',
+                             # selfCollision=True
+                             )
+    collisionModel.addObject('BarycentricMapping',
+                             input=mechanicalModel.MModel.getLinkPath()
+                             )
+
     return self
 
 
@@ -150,7 +171,9 @@ def createScene(rootNode):
     scene.Settings.mouseButton.stiffness = 0.1
     scene.VisualStyle.displayFlags = "showBehaviorModels showForceFields showCollisionModels"
 
-    scene.Simulation.addChild(Particles(size=[12,12,12]))
+    # scene.Simulation.addChild(Particles(size=[12,12,12]))
+    scene.Simulation.addChild(ParticleSource())
+
     Floor(scene.Modelling,
           color=[1.0, 0.0, 0.0],
           translation=[0.0, -10.0, 0.0],
