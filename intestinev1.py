@@ -116,7 +116,7 @@ def Intestinev1(name="Intestine", rotation=None, translation=None, color=None):
                                   # pressureSpeed=0.1
                                   )
     # collisionmodelInner.addObject('TaitSurfacePressureForceField', name='pressure',
-    #                           gamma=7, B=1, injectedVolume=0.00001,
+    #                           gamma=5, B=1000, injectedVolume=5,
     #                           )
 
 
