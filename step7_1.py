@@ -10,7 +10,7 @@ import os, sys
 import Sofa
 from stlib3.scene import Scene
 import numpy as np
-from intestinev1 import Intestinev1
+from intestinev1 import Intestinev1,Intestinev2
 
 dirPath = os.path.dirname(os.path.abspath(__file__)) + '/'
 from stlib3.visuals import VisualModel
@@ -174,7 +174,7 @@ def CreateSensor(name="Sensor", filepath='', rotation=None, translation=None,
     collisionmodel.addObject('MeshTopology', src="@loader")
     collisionmodel.addObject('MechanicalObject')
     # 传感器的碰撞组为1
-    collisionmodel.addObject('PointCollisionModel', group=1)
+    # collisionmodel.addObject('PointCollisionModel', group=1)
     collisionmodel.addObject('LineCollisionModel', group=1)
     collisionmodel.addObject('TriangleCollisionModel', group=1)
     collisionmodel.addObject('RigidMapping',
@@ -522,7 +522,7 @@ def createScene(rootNode):
     scene.addObject('RuleBasedContactManager', responseParams="mu=" + str(frictionCoef),
                     name='Response', response='FrictionContactConstraint')
     scene.addObject('LocalMinDistance',
-                    alarmDistance=2, contactDistance=0.1,
+                    alarmDistance=2, contactDistance=0.3,
                     angleCone=0.01)
     scene.addObject('FreeMotionAnimationLoop')
     scene.addObject('GenericConstraintSolver', tolerance=1e-6, maxIterations=1000,
@@ -538,7 +538,7 @@ def createScene(rootNode):
     # scene.Modelling.addChild(ServoMotor(name="ServoMotor"))
 
     # simulation model
-    scene.Simulation.addChild(Intestinev1(rotation=[90.0, 0.0, 0.0],translation=[5,50,28], color=[1.0, 1.0, 1.0, 0.5]))
+    scene.Simulation.addChild(Intestinev2(rotation=[90.0, 0.0, 0.0],translation=[5,50,28], color=[1.0, 1.0, 1.0, 0.5]))
     scene.Simulation.addChild(ServoMotor(name="ServoMotor", translation=[0, 0, 0], rotation=[0, 0, 0]))
     # animate(animation, {'target': scene.Simulation.ServoMotor}, duration=10., mode='loop')
     # scene.Simulation.ServoMotor.Articulation.ServoWheel.dofs.showObject = True
