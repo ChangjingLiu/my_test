@@ -183,4 +183,28 @@ Co
 1100000
 +2 1 *
 
-+1 0 
++1 0 //+
+SetFactory("OpenCASCADE");
+Circle(7) = {0, 0, 65, 10, 0, 2*Pi};
+//+
+Circle(8) = {0, 0, 65, 8.5, 0, 2*Pi};
+//+
+Surface Loop(2) = {4, 2, 1, 3};
+//+
+Surface Loop(3) = {1, 2, 4, 3};
+//+
+Surface Loop(4) = {4, 2, 1, 3};
+//+
+Surface Loop(5) = {4, 2, 1, 3};
+//+
+Surface Loop(6) = {4, 2, 1, 3};
+//+
+Surface Loop(7) = {4, 2, 1, 3};
+//+
+Surface Loop(8) = {1, 2, 4, 3};
+//+
+Split Curve {7} Point {};
+//+
+Split Curve {8} Point {};
+//+
+Surface Loop(9) = {4, 2, 1, 3};

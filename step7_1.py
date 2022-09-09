@@ -10,7 +10,7 @@ import os, sys
 import Sofa
 from stlib3.scene import Scene
 import numpy as np
-from intestinev1 import Intestinev1,Intestinev2
+from intestinev1 import Intestinev1,Intestinev2,Intestinev3
 
 dirPath = os.path.dirname(os.path.abspath(__file__)) + '/'
 from stlib3.visuals import VisualModel
@@ -95,7 +95,7 @@ def getAngle(x1, x2, x3, theta1):
     return ans
 
 
-def CreateArm(name="Intestine", filepath='', position=None, translation=None, rotation=None, visiontranslation=None,
+def CreateAxis(name="Intestine", filepath='', position=None, translation=None, rotation=None, visiontranslation=None,
               visionrotation=None, color=None):
     if color is None:
         color = [0.5, 0.45, 0.75, 0.7]
@@ -139,6 +139,68 @@ def CreateArm(name="Intestine", filepath='', position=None, translation=None, ro
     visualModel.addObject('RigidMapping',
                           input=mechanicalModel.dofs.getLinkPath(),
                           output=visualModel.renderer.getLinkPath(), )
+
+    return self
+def CreateArm(name="Intestine", filepath='', file1path=None,position=None, translation=None, rotation=None, visiontranslation=None,
+              visionrotation=None, color=None):
+    if color is None:
+        color = [0.5, 0.45, 0.75, 0.7]
+    if translation is None:
+        translation = [0, 0, 0]
+    if rotation is None:
+        rotation = [0, 0, 0]
+    if visionrotation is None:
+        visionrotation = [0, 0, 0]
+    if position is None:
+        position = [0, 0, 0]
+
+    self = Sofa.Core.Node(name)
+    mechanicalModel = self.addChild("MechanicalModel")
+    # upperArmLongMechanicalModel = upperArmLong.addChild("MechanicalModel")
+    mechanicalModel.addObject('MechanicalObject',
+                              name='dofs',
+                              size=1,
+                              template='Rigid3d',
+                              showObject=True,
+                              showObjectScale=10,
+                              translation=translation,
+                              rotation=rotation,
+                              position=position,
+                              )
+    # upperArmLongMechanicalModel.addObject('FixedConstraint')
+    mechanicalModel.addObject('UniformMass', totalMass=0.1)
+    # mechanicalModel.addObject('RigidRigidMapping', name='mapping',
+    #                           input="@../../Articulation/ArmWheel/dofs",
+    #                           output="@./",
+    #                           index=index,  # input frame index,不能改
+    #                           )
+    # visual model
+    visualModel = self.addChild('VisualModel')
+    visualModel.addObject('MeshSTLLoader', name='loader', filename=filepath,
+                          translation=visiontranslation,
+                          rotation=visionrotation)
+    visualModel.addObject('MeshTopology', src='@loader')
+    visualModel.addObject('OglModel', name='renderer', color=color,
+                          writeZTransparent=True)
+    visualModel.addObject('RigidMapping',
+                          input=mechanicalModel.dofs.getLinkPath(),
+                          output=visualModel.renderer.getLinkPath(), )
+
+    # collision model
+    if file1path is not None:
+        collisionmodel = self.addChild("CollisionModel1")
+        collisionmodel.addObject('MeshSTLLoader', name="loader1", filename=file1path,
+                                 rotation=visionrotation, translation=visiontranslation
+                                 )
+        collisionmodel.addObject('MeshTopology', src="@loader1")
+        collisionmodel.addObject('MechanicalObject')
+        # 传感器的碰撞组为1
+        collisionmodel.addObject('PointCollisionModel', group=1)
+        collisionmodel.addObject('LineCollisionModel', group=1)
+        collisionmodel.addObject('TriangleCollisionModel', group=1)
+        collisionmodel.addObject('RigidMapping',
+                                 input=mechanicalModel.dofs.getLinkPath()
+                                 )
 
     return self
 
@@ -243,7 +305,7 @@ class ServoMotor(Sofa.Prefab):
                         position=[[-0.43282318], [1.2], [1.6072389], [1.2]],
                         rest_position=self.getData('angleIn').getLinkPath(),
                         )
-        angle.addObject('RestShapeSpringsForceField', points=[0, 1, 2, 3], stiffness=1e9)
+        angle.addObject('RestShapeSpringsForceField', points=[0, 1, 2, 3], stiffness=1e11)
         angle.addObject('UniformMass', totalMass=0.01)
 
         # 关节轮 armWheel0 (非实体部分)
@@ -304,7 +366,7 @@ class ServoMotor(Sofa.Prefab):
         ##########
         # 轴1 Axis1
         axis1 = self.addChild(
-            CreateArm(name='Axis1', filepath='data/Ass_robot/sofa_model/Axis_1.STL',
+            CreateAxis(name='Axis1', filepath='data/Ass_robot/sofa_model/Axis_1.STL',
                       translation=list(self.translation.value), rotation=list(self.rotation.value),
                       position=[[11.01, -11.3, 0., 0., 0., 0., 1.]],
                       # visiontranslation=[0.0, 0.0, -30.58]
@@ -313,7 +375,7 @@ class ServoMotor(Sofa.Prefab):
         axis1.MechanicalModel.addObject('FixedConstraint')
         # 轴2 Axis2
         axis2 = self.addChild(
-            CreateArm(name='Axis2', filepath='data/Ass_robot/sofa_model/Axis_2.STL',
+            CreateAxis(name='Axis2', filepath='data/Ass_robot/sofa_model/Axis_2.STL',
                       translation=list(self.translation.value), rotation=list(self.rotation.value),
                       # position=[[11.01, -11.3, 0., 0., 0., 0., 1.]],
                       # visiontranslation=[0.0, 0.0, -30.58]
@@ -324,6 +386,7 @@ class ServoMotor(Sofa.Prefab):
         # 上臂长 upperArmLong
         upperArmLong = self.addChild(
             CreateArm(name='UpperArmLong', filepath='data/Ass_robot/sofa_model/upperArm_Long.STL',
+                      file1path="data/Ass_robot/sofa_model/upperArm_Long_p1.STL",
                       visiontranslation=[0.0, 0.0, -30.58]))
         upperArmLong.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                input="@../../Articulation/ArmWheel/dofs",
@@ -334,6 +397,7 @@ class ServoMotor(Sofa.Prefab):
         # 上臂短 upperArmShort
         upperArmShort = self.addChild(
             CreateArm(name='UpperArmShort', filepath='data/Ass_robot/sofa_model/upperArm_Short.STL',
+                      file1path="data/Ass_robot/sofa_model/upperArm_Short_p1.STL",
                       visiontranslation=[0.0, 0.0, -26.41]))
         upperArmShort.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                 input="@../../Articulation/ArmWheel/dofs",
@@ -344,6 +408,7 @@ class ServoMotor(Sofa.Prefab):
         # 中臂短 middleArmShort
         middleArmShort = self.addChild(
             CreateArm(name='MiddleArmShort', filepath='data/Ass_robot/sofa_model/middleArm_Short.STL',
+                      file1path="data/Ass_robot/sofa_model/middleArm_Short_p1.STL",
                       visiontranslation=[0.0, 0.0, -26.41]))
         middleArmShort.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                  input="@../../Articulation/ArmWheel/dofs",
@@ -353,6 +418,7 @@ class ServoMotor(Sofa.Prefab):
         # 中臂长 middleArmLong
         middleArmLong = self.addChild(
             CreateArm(name='MiddleArmLong', filepath='data/Ass_robot/sofa_model/middleArm_Long.STL',
+                      file1path="data/Ass_robot/sofa_model/middleArm_Long_p1.STL",
                       visiontranslation=[0.0, 0.0, -30.58]))
         middleArmLong.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                 input="@../../Articulation/ArmWheel/dofs",
@@ -362,6 +428,7 @@ class ServoMotor(Sofa.Prefab):
         # 下臂长 lowerArmLong
         lowerArmLong = self.addChild(
             CreateArm(name='LowerArmLong', filepath='data/Ass_robot/sofa_model/lowerArm_Long.STL',
+                      # file1path="data/Ass_robot/sofa_model/upperArm_Long_p1.STL",
                       visiontranslation=[0.0, -22.6, -30.58]))
         lowerArmLong.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                input="@../../Articulation/ArmWheel/dofs",
@@ -371,6 +438,7 @@ class ServoMotor(Sofa.Prefab):
         # 下臂短 lowerArmShort
         lowerArmShort = self.addChild(
             CreateArm(name='LowerArmShort', filepath='data/Ass_robot/sofa_model/lowerArm_Short.STL',
+                      # file1path="data/Ass_robot/sofa_model/upperArm_Long_p1.STL",
                       visiontranslation=[0.0, -22.6, -26.41]))
         lowerArmShort.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                 input="@../../Articulation/ArmWheel/dofs",
@@ -522,7 +590,7 @@ def createScene(rootNode):
     scene.addObject('RuleBasedContactManager', responseParams="mu=" + str(frictionCoef),
                     name='Response', response='FrictionContactConstraint')
     scene.addObject('LocalMinDistance',
-                    alarmDistance=2, contactDistance=0.3,
+                    alarmDistance=1, contactDistance=0.4,
                     angleCone=0.01)
     scene.addObject('FreeMotionAnimationLoop')
     scene.addObject('GenericConstraintSolver', tolerance=1e-6, maxIterations=1000,
@@ -538,7 +606,7 @@ def createScene(rootNode):
     # scene.Modelling.addChild(ServoMotor(name="ServoMotor"))
 
     # simulation model
-    scene.Simulation.addChild(Intestinev2(rotation=[90.0, 0.0, 0.0],translation=[5,50,28], color=[1.0, 1.0, 1.0, 0.5]))
+    scene.Simulation.addChild(Intestinev3(rotation=[90.0, 0.0, 0.0],translation=[5,50,28], color=[1.0, 1.0, 1.0, 0.5]))
     scene.Simulation.addChild(ServoMotor(name="ServoMotor", translation=[0, 0, 0], rotation=[0, 0, 0]))
     # animate(animation, {'target': scene.Simulation.ServoMotor}, duration=10., mode='loop')
     # scene.Simulation.ServoMotor.Articulation.ServoWheel.dofs.showObject = True
