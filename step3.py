@@ -64,14 +64,14 @@ def createScene(rootNode):
     root.VisualStyle.displayFlags = "showCollisionModels"
 
     # 添加肠道模型 Add the intestine model
-    root.Modelling.addChild(Intestine(rotation=[90.0, 0.0, 0.0], color=[1.0, 1.0, 1.0, 0.5]))
+    # root.Modelling.addChild(Intestine(rotation=[90.0, 0.0, 0.0], color=[1.0, 1.0, 1.0, 0.5]))
     # 添加一个方块 Add Cube
     # scene.Modelling.addChild(
     #     myCube(translation=[0, 200, 0], rotation=[0.0, 0.0, 0.0], color=[1.0, 1.0, 1.0, 0.5], scale=2))
     Cube1 = Cube(root.Modelling, name="Cube",
                  translation=[0.0, 80.0, 0.0],
                  uniformScale=15.,
-                 totalMass=0.1,
+                 totalMass=1,
                  isAStaticObject=False, )
     Cube1.addObject('UncoupledConstraintCorrection')
     # root.Modelling.Cube.addObject('Monitor', template="Vec3d", name="123",listening="1", indices="0", showForces="1" )
@@ -83,25 +83,22 @@ def createScene(rootNode):
           isAStaticObject=True)
 
     # Instanciating the FixingBox prefab into the graph, constraining the mechanical object of the ElasticBody.
-    box1 = FixingBox(root.Modelling,
-                     root.Modelling.Intestine.MechanicalModel,
-                     name="box1",
-                     translation=[0.0, 10.0, 0.0],
-                     scale=[50., 50., 50.])
-    box2 = FixingBox(root.Modelling,
-                     root.Modelling.Intestine.MechanicalModel,
-                     name="box2",
-                     translation=[0.0, -60.0, 0.0],
-                     scale=[50., 50., 50.])
-    # # Changing the property of the Box ROI so that the constraint area appears on screen.
-    box1.BoxROI.drawBoxes = True
-    box2.BoxROI.drawBoxes = True
+    # box1 = FixingBox(root.Modelling,
+    #                  root.Modelling.Intestine.MechanicalModel,
+    #                  name="box1",
+    #                  translation=[0.0, 10.0, 0.0],
+    #                  scale=[50., 50., 50.])
+    # box2 = FixingBox(root.Modelling,
+    #                  root.Modelling.Intestine.MechanicalModel,
+    #                  name="box2",
+    #                  translation=[0.0, -60.0, 0.0],
+    #                  scale=[50., 50., 50.])
+    # # # Changing the property of the Box ROI so that the constraint area appears on screen.
+    # box1.BoxROI.drawBoxes = True
+    # box2.BoxROI.drawBoxes = True
 
     # 添加Simulation模块
-    # root.Simulation.addChild(root.Modelling.Intestine)
-    # root.Simulation.addChild(root.Modelling.Cube)
-    # root.Simulation.addChild(root.Modelling.box1)
-    # root.Simulation.addChild(root.Modelling.box2)
+
 
     # 添加全局控制器 Add Controller
     # 参数为节点

@@ -15,7 +15,38 @@ from intestinev1 import Intestinev1,Intestinev2,Intestinev3
 dirPath = os.path.dirname(os.path.abspath(__file__)) + '/'
 from stlib3.visuals import VisualModel
 from fixingbox import FixingBox
+from scipy.spatial.transform import Rotation as R
 
+def quat_vector(quat):
+    '''
+    四元数转换为旋转矩阵，并左乘方向向量[0,0,1]
+    :param quat: [qx,qy,qz,w]
+    :return: [x,y,z]
+    '''
+    # 构造四元数
+    r = R.from_quat(quat)
+    # 转化为旋转矩阵
+    rotation_matrix = r.as_matrix()
+    # 旋转矩阵左乘方向向量
+    vector = np.matmul(rotation_matrix, np.array([0, 0, -1]))
+    # euler0 = r.as_euler('xyz', degrees=True)
+    # theta=2*math.acos(quat[6])
+    # vector = np.zeros((1, 3))
+    # vector = quat[3:6]/math.sin(theta/2)
+    # vector=quat[3:7].as_as_euler('xyz', thetadegrees=False)
+    return vector
+
+def quat_rot(quat):
+    '''
+    四元数转换为旋转矩阵
+    :param quat: [qx,qy,qz,w]
+    :return: [x,y,z]
+    '''
+    # 构造四元数
+    r = R.from_quat(quat)
+    # 转化为旋转矩阵
+    rotation_matrix = r.as_matrix()
+    return rotation_matrix
 
 class EmptyController(Sofa.Core.Controller):
 
@@ -27,11 +58,66 @@ class EmptyController(Sofa.Core.Controller):
         # 指针获取节点
         self.ServoMotor = kwargs["ServoMotor"]
         self.scene=kwargs["scene"]
-        self.intestineCollision=kwargs["intestineCollision"]
-        self.intestineCollisionInner = kwargs["intestineCollisionInner"]
+        if "intestineCollision" in kwargs:
+            self.intestineCollision=kwargs["intestineCollision"]
+        if "intestineCollisionInner" in kwargs:
+            self.intestineCollisionInner = kwargs["intestineCollisionInner"]
+
+        self.GenericConstraintSolver = kwargs['GenericConstraintSolver']
+        self.Sensor1_Constraint = kwargs['Sensors'].Sensor1.CollisionModel.MechanicalObject.constraint
+        self.Sensor1 = (kwargs['Sensors'].Sensor1.MechanicalModel.dofs.position.value[0][3:7])
+        # self.Cube = kwargs['Cube']
 
         self.stepsize = 0.01
         self.steppressure = 5
+
+    def onAnimateBeginEvent(self, event):  # called at each begin of animation step
+
+        # 获取constraint每个约束的法向力（对刚性接触面的方向未知）
+        constraintLambda = self.GenericConstraintSolver.constraintForces.value
+        # print(constraintlambda)
+        constraint = self.Sensor1_Constraint.value
+        Sensor1_pos = quat_rot(self.Sensor1)
+        print(constraint)
+        constraint_oneline = constraint.split('\n')
+        # len(self.constraintForcesLambda)
+        # 每个节点的法向约束力
+        F_collies = np.zeros((200, 1))
+
+        # 对每一个约束进行计算
+        for i in range(len(constraint_oneline)):
+            # 第i个约束
+            constraint_mat = list(map(eval, constraint_oneline[i].split()))
+            if len(constraint_mat) > 0:
+                # 第i个约束的个数j，即第二列
+                # print("约束id：", i, "，约束个数", constraint_mat[1])
+                for j in range(constraint_mat[1]):
+                    # 第i个约束影响的节点id
+                    id_index = 2 + j * 4
+                    ID = constraint_mat[id_index]
+                    # 第i个约束影响的节点id的方向
+                    left = id_index + 1
+                    right = left + 3
+
+                    # print(ID)
+                    # print(constraint_mat[left:right])
+                    # print("点id：", ID, "矩阵", constraint_mat[left:right])
+                    # F_collies[ID] += np.array(constraint_mat[left:right]) * constraintLambda[i] / 0.001
+                    # F_collies[ID] += np.array([1,1,1])*abs(constraintLambda[i]) / 0.001
+
+                    F_collies[ID] += np.matmul(Sensor1_pos,np.dot(constraint_mat[left:right], constraintLambda[i]).T).T / 0.001
+
+                    # 计算约束力向量与刚性接触面的法向向量的内积
+                    # ans = np.dot(np.array(constraint_mat[left:right]) * constraintLambda[i], Sensor1_pos)
+                    # if ans >= 0:
+                    #     F_collies[ID] += np.array([1]) * abs(constraintLambda[i]) / 0.0001
+                    # elif ans < 0:
+                    #     F_collies[ID] -= np.array([1]) * abs(constraintLambda[i]) / 0.0001
+                    # F_collies[ID] += np.array([1,1,1])*constraintLambda[i] / 0.001
+
+        print(F_collies)
+
+        pass
 
     def onKeypressedEvent(self, event):
         key = event['key']
@@ -115,8 +201,8 @@ def CreateAxis(name="Intestine", filepath='', position=None, translation=None, r
                               name='dofs',
                               size=1,
                               template='Rigid3d',
-                              showObject=True,
-                              showObjectScale=10,
+                              # showObject=True,
+                              # showObjectScale=10,
                               translation=translation,
                               rotation=rotation,
                               position=position,
@@ -161,8 +247,8 @@ def CreateArm(name="Intestine", filepath='', file1path=None,position=None, trans
                               name='dofs',
                               size=1,
                               template='Rigid3d',
-                              showObject=True,
-                              showObjectScale=10,
+                              # showObject=True,
+                              # showObjectScale=10,
                               translation=translation,
                               rotation=rotation,
                               position=position,
@@ -223,7 +309,7 @@ def CreateSensor(name="Sensor", filepath='', rotation=None, translation=None,
                               size=1,
                               template='Rigid3d',
                               # showObject=True,
-                              showObjectScale=10,
+                              # showObjectScale=10,
                               rotation=rotation,
                               translation=translation, )
     # upperArmLongMechanicalModel.addObject('FixedConstraint')
@@ -314,8 +400,8 @@ class ServoMotor(Sofa.Prefab):
                            position=[[0., 0., 0., 0., 0., 0., 1.], [0., 0., 0., 0., 0., 0., 1.],
                                      [0., 0., 0., 0., 0., 0., 1.], [0., 0., 0., 0., 0., 0., 1.],
                                      [0., 0., 0., 0., 0., 0., 1.]],
-                           showObjectScale=10,
-                           showObject=True,
+                           # showObjectScale=10,
+                           # showObject=True,
                            translation=list(self.translation.value),
                            rotation=list(self.rotation.value),
                            scale3d=list(self.scale3d.value))
@@ -607,7 +693,7 @@ def createScene(rootNode):
 
     # simulation model
     scene.Simulation.addChild(Intestinev2(rotation=[90.0, 0.0, 0.0],translation=[5,50,28], color=[1.0, 1.0, 1.0, 0.5]))
-    scene.Simulation.addChild(ServoMotor(name="ServoMotor", translation=[0, 0, 0], rotation=[0, 0, 0]))
+    scene.Simulation.addChild(ServoMotor(name="Robot", translation=[0, 0, 0], rotation=[0, 0, 0]))
     # animate(animation, {'target': scene.Simulation.ServoMotor}, duration=10., mode='loop')
     # scene.Simulation.ServoMotor.Articulation.ServoWheel.dofs.showObject = True
 
@@ -626,9 +712,11 @@ def createScene(rootNode):
     box2.BoxROI.drawBoxes = True
 
     # scene.Simulation.addChild(scene.Modelling.ServoMotor.box1)
-    scene.addObject(EmptyController(name='controller', ServoMotor=scene.Simulation.ServoMotor,scene=scene,
+    scene.addObject(EmptyController(name='controller', ServoMotor=scene.Simulation.Robot,scene=scene,
                                     intestineCollision=scene.Simulation.Intestine.CollisionModel,
-                                    intestineCollisionInner=scene.Simulation.Intestine.CollisionModel_inner
+                                    intestineCollisionInner=scene.Simulation.Intestine.CollisionModel_inner,
+                                    GenericConstraintSolver=scene.GenericConstraintSolver,
+                                    Sensors=scene.Simulation.Robot.Sensors
                                     ))
     return scene
 

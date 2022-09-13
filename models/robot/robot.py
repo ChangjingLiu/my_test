@@ -10,7 +10,7 @@ import os, sys
 import Sofa
 from stlib3.scene import Scene
 import numpy as np
-from intestinev1 import Intestinev1,Intestinev2,Intestinev3
+# from intestinev1 import Intestinev1,Intestinev2,Intestinev3
 
 dirPath = os.path.dirname(os.path.abspath(__file__)) + '/'
 from stlib3.visuals import VisualModel
@@ -27,8 +27,10 @@ class EmptyController(Sofa.Core.Controller):
         # 指针获取节点
         self.ServoMotor = kwargs["ServoMotor"]
         self.scene=kwargs["scene"]
-        self.intestineCollision=kwargs["intestineCollision"]
-        self.intestineCollisionInner = kwargs["intestineCollisionInner"]
+        if "intestineCollision" in kwargs:
+            self.intestineCollision=kwargs["intestineCollision"]
+        if "intestineCollisionInner" in kwargs:
+            self.intestineCollisionInner = kwargs["intestineCollisionInner"]
 
         self.stepsize = 0.01
         self.steppressure = 5
@@ -366,7 +368,7 @@ class ServoMotor(Sofa.Prefab):
         ##########
         # 轴1 Axis1
         axis1 = self.addChild(
-            CreateAxis(name='Axis1', filepath='data/Ass_robot/sofa_model/Axis_1.STL',
+            CreateAxis(name='Axis1', filepath='../../data/Ass_robot/sofa_model/Axis_1.STL',
                       translation=list(self.translation.value), rotation=list(self.rotation.value),
                       position=[[11.01, -11.3, 0., 0., 0., 0., 1.]],
                       # visiontranslation=[0.0, 0.0, -30.58]
@@ -375,7 +377,7 @@ class ServoMotor(Sofa.Prefab):
         axis1.MechanicalModel.addObject('FixedConstraint')
         # 轴2 Axis2
         axis2 = self.addChild(
-            CreateAxis(name='Axis2', filepath='data/Ass_robot/sofa_model/Axis_2.STL',
+            CreateAxis(name='Axis2', filepath='../../data/Ass_robot/sofa_model/Axis_2.STL',
                       translation=list(self.translation.value), rotation=list(self.rotation.value),
                       # position=[[11.01, -11.3, 0., 0., 0., 0., 1.]],
                       # visiontranslation=[0.0, 0.0, -30.58]
@@ -385,8 +387,8 @@ class ServoMotor(Sofa.Prefab):
 
         # 上臂长 upperArmLong
         upperArmLong = self.addChild(
-            CreateArm(name='UpperArmLong', filepath='data/Ass_robot/sofa_model/upperArm_Long.STL',
-                      file1path="data/Ass_robot/sofa_model/upperArm_Long_p1.STL",
+            CreateArm(name='UpperArmLong', filepath='../../data/Ass_robot/sofa_model/upperArm_Long.STL',
+                      file1path="../../data/Ass_robot/sofa_model/upperArm_Long_p1.STL",
                       visiontranslation=[0.0, 0.0, -30.58]))
         upperArmLong.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                input="@../../Articulation/ArmWheel/dofs",
@@ -396,8 +398,8 @@ class ServoMotor(Sofa.Prefab):
 
         # 上臂短 upperArmShort
         upperArmShort = self.addChild(
-            CreateArm(name='UpperArmShort', filepath='data/Ass_robot/sofa_model/upperArm_Short.STL',
-                      file1path="data/Ass_robot/sofa_model/upperArm_Short_p1.STL",
+            CreateArm(name='UpperArmShort', filepath='../../data/Ass_robot/sofa_model/upperArm_Short.STL',
+                      file1path="../../data/Ass_robot/sofa_model/upperArm_Short_p1.STL",
                       visiontranslation=[0.0, 0.0, -26.41]))
         upperArmShort.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                 input="@../../Articulation/ArmWheel/dofs",
@@ -407,8 +409,8 @@ class ServoMotor(Sofa.Prefab):
 
         # 中臂短 middleArmShort
         middleArmShort = self.addChild(
-            CreateArm(name='MiddleArmShort', filepath='data/Ass_robot/sofa_model/middleArm_Short.STL',
-                      file1path="data/Ass_robot/sofa_model/middleArm_Short_p1.STL",
+            CreateArm(name='MiddleArmShort', filepath='../../data/Ass_robot/sofa_model/middleArm_Short.STL',
+                      file1path="../../data/Ass_robot/sofa_model/middleArm_Short_p1.STL",
                       visiontranslation=[0.0, 0.0, -26.41]))
         middleArmShort.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                  input="@../../Articulation/ArmWheel/dofs",
@@ -417,8 +419,8 @@ class ServoMotor(Sofa.Prefab):
                                                  )
         # 中臂长 middleArmLong
         middleArmLong = self.addChild(
-            CreateArm(name='MiddleArmLong', filepath='data/Ass_robot/sofa_model/middleArm_Long.STL',
-                      file1path="data/Ass_robot/sofa_model/middleArm_Long_p1.STL",
+            CreateArm(name='MiddleArmLong', filepath='../../data/Ass_robot/sofa_model/middleArm_Long.STL',
+                      file1path="../../data/Ass_robot/sofa_model/middleArm_Long_p1.STL",
                       visiontranslation=[0.0, 0.0, -30.58]))
         middleArmLong.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                 input="@../../Articulation/ArmWheel/dofs",
@@ -427,8 +429,8 @@ class ServoMotor(Sofa.Prefab):
                                                 )
         # 下臂长 lowerArmLong
         lowerArmLong = self.addChild(
-            CreateArm(name='LowerArmLong', filepath='data/Ass_robot/sofa_model/lowerArm_Long.STL',
-                      # file1path="data/Ass_robot/sofa_model/upperArm_Long_p1.STL",
+            CreateArm(name='LowerArmLong', filepath='../../data/Ass_robot/sofa_model/lowerArm_Long.STL',
+                      # file1path="../../data/Ass_robot/sofa_model/upperArm_Long_p1.STL",
                       visiontranslation=[0.0, -22.6, -30.58]))
         lowerArmLong.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                input="@../../Articulation/ArmWheel/dofs",
@@ -437,8 +439,8 @@ class ServoMotor(Sofa.Prefab):
                                                )
         # 下臂短 lowerArmShort
         lowerArmShort = self.addChild(
-            CreateArm(name='LowerArmShort', filepath='data/Ass_robot/sofa_model/lowerArm_Short.STL',
-                      # file1path="data/Ass_robot/sofa_model/upperArm_Long_p1.STL",
+            CreateArm(name='LowerArmShort', filepath='../../data/Ass_robot/sofa_model/lowerArm_Short.STL',
+                      # file1path="../../data/Ass_robot/sofa_model/upperArm_Long_p1.STL",
                       visiontranslation=[0.0, -22.6, -26.41]))
         lowerArmShort.MechanicalModel.addObject('RigidRigidMapping', name='mapping',
                                                 input="@../../Articulation/ArmWheel/dofs",
@@ -449,7 +451,7 @@ class ServoMotor(Sofa.Prefab):
         # 传感器部分
         # sensor in upperArmLong
         sensors = self.addChild("Sensors")
-        sensor1 = sensors.addChild(CreateSensor(name='Sensor1', filepath='data/Ass_robot/sofa_model/sensor_plane.stl',
+        sensor1 = sensors.addChild(CreateSensor(name='Sensor1', filepath='../../data/Ass_robot/sofa_model/sensor_plane.stl',
                                                 rotation=[180.0, (np.pi / 2 + np.arcsin(2.25 / 30.5)) / np.pi * 180, 180.0],
                                                 collisiontranslation=[5.67, -4.5+8, 3.05],
                                                 # translation=[3.05, -4.5, -5.67]
@@ -459,7 +461,7 @@ class ServoMotor(Sofa.Prefab):
                                           output="@./",
                                           index=1,  # input frame index,不能改
                                           )
-        sensor2 = sensors.addChild(CreateSensor(name='Sensor2', filepath='data/Ass_robot/sofa_model/sensor_plane.stl',
+        sensor2 = sensors.addChild(CreateSensor(name='Sensor2', filepath='../../data/Ass_robot/sofa_model/sensor_plane.stl',
                                                 rotation=[-90.0, (np.pi / 2 - np.arcsin(2.25 / 30.5)) / np.pi * 180,
                                                           0.0],
                                                 # translation=[0, 4.3, -5.67]),
@@ -471,7 +473,7 @@ class ServoMotor(Sofa.Prefab):
                                           index=1,  # input frame index,不能改
                                           )
         # sensor in upperArmShort
-        sensor3 = sensors.addChild(CreateSensor(name='Sensor3', filepath='data/Ass_robot/sofa_model/sensor_plane.stl',
+        sensor3 = sensors.addChild(CreateSensor(name='Sensor3', filepath='../../data/Ass_robot/sofa_model/sensor_plane.stl',
                                                 rotation=[0.0, (np.pi / 2 - np.arcsin(2.76 / 26.27)) / np.pi * 180,
                                                           0.0],
                                                 collisiontranslation=[6.67, -4.5+8, 0.29],
@@ -482,7 +484,7 @@ class ServoMotor(Sofa.Prefab):
                                           output="@./",
                                           index=2,  # input frame index,不能改
                                           )
-        sensor4 = sensors.addChild(CreateSensor(name='Sensor4', filepath='data/Ass_robot/sofa_model/sensor_plane.stl',
+        sensor4 = sensors.addChild(CreateSensor(name='Sensor4', filepath='../../data/Ass_robot/sofa_model/sensor_plane.stl',
                                                 rotation=[-90.0, (np.pi / 2 - np.arcsin(2.76 / 26.27)) / np.pi * 180,
                                                           0.0],
                                                 # translation=[0, 4.3, -5.67]),
@@ -498,7 +500,7 @@ class ServoMotor(Sofa.Prefab):
 
 
 
-        sensor5 = sensors.addChild(CreateSensor(name='Sensor5', filepath='data/Ass_robot/sofa_model/sensor_plane.stl',
+        sensor5 = sensors.addChild(CreateSensor(name='Sensor5', filepath='../../data/Ass_robot/sofa_model/sensor_plane.stl',
                                                 rotation=[0.0, (-np.pi / 2 - np.arcsin(2.25 / 30.5)) / np.pi * 180,
                                                           180.0],
                                                 collisiontranslation=[0 - 24.83, -4.5+9, -5.3 - 0.21+11],
@@ -509,7 +511,7 @@ class ServoMotor(Sofa.Prefab):
                                           output="@./",
                                           index=4,  # input frame index,不能改
                                           )
-        sensor6 = sensors.addChild(CreateSensor(name='Sensor6', filepath='data/Ass_robot/sofa_model/sensor_plane.stl',
+        sensor6 = sensors.addChild(CreateSensor(name='Sensor6', filepath='../../data/Ass_robot/sofa_model/sensor_plane.stl',
                                                 rotation=[90.0, (-np.pi / 2 - np.arcsin(2.25 / 30.5)) / np.pi * 180,
                                                           180.0],
                                                 # translation=[0, 4.3, -5.67]),
@@ -521,7 +523,7 @@ class ServoMotor(Sofa.Prefab):
                                           index=4,  # input frame index,不能改
                                           )
 
-        sensor7 = sensors.addChild(CreateSensor(name='Sensor7', filepath='data/Ass_robot/sofa_model/sensor_plane.stl',
+        sensor7 = sensors.addChild(CreateSensor(name='Sensor7', filepath='../../data/Ass_robot/sofa_model/sensor_plane.stl',
                                                 rotation=[0.0, (-np.pi / 2 - np.arcsin(2.76 / 26.27)) / np.pi * 180,
                                                           180.0],
                                                 collisiontranslation=[6.77 - 26.27, -4.3 + 8.7,
@@ -533,7 +535,7 @@ class ServoMotor(Sofa.Prefab):
                                           output="@./",
                                           index=3,  # input frame index,不能改
                                           )
-        sensor8 = sensors.addChild(CreateSensor(name='Sensor8', filepath='data/Ass_robot/sofa_model/sensor_plane.stl',
+        sensor8 = sensors.addChild(CreateSensor(name='Sensor8', filepath='../../data/Ass_robot/sofa_model/sensor_plane.stl',
                                                 rotation=[90.0, (-np.pi / 2 - np.arcsin(2.76 / 26.27)) / np.pi * 180,
                                                           180.0],
                                                 # translation=[0, 4.3, -5.67]),
@@ -546,7 +548,7 @@ class ServoMotor(Sofa.Prefab):
                                           )
 
         # sensor in middleArmLong
-        sensor9 = sensors.addChild(CreateSensor(name='Sensor9', filepath='data/Ass_robot/sofa_model/sensor_plane.stl',
+        sensor9 = sensors.addChild(CreateSensor(name='Sensor9', filepath='../../data/Ass_robot/sofa_model/sensor_plane.stl',
                                                 rotation=[0.0, (np.pi / 2 - np.arcsin(2.25 / 30.5)) / np.pi * 180, 0.0],
                                                 collisiontranslation=[5.67, -4.5 - 22.6+8, 3.05],
                                                 # translation=[3.05, -4.5, -5.67]
@@ -557,7 +559,7 @@ class ServoMotor(Sofa.Prefab):
                                           index=1,  # input frame index,不能改
                                           )
 
-        sensor10 = sensors.addChild(CreateSensor(name='Sensor10', filepath='data/Ass_robot/sofa_model/sensor_plane.stl',
+        sensor10 = sensors.addChild(CreateSensor(name='Sensor10', filepath='../../data/Ass_robot/sofa_model/sensor_plane.stl',
                                                 rotation=[0.0, (np.pi / 2 - np.arcsin(2.76 / 26.27)) / np.pi * 180,
                                                           0.0],
                                                 collisiontranslation=[6.67, -4.5 - 22.6+8, 0.29],
@@ -606,29 +608,29 @@ def createScene(rootNode):
     # scene.Modelling.addChild(ServoMotor(name="ServoMotor"))
 
     # simulation model
-    scene.Simulation.addChild(Intestinev2(rotation=[90.0, 0.0, 0.0],translation=[5,50,28], color=[1.0, 1.0, 1.0, 0.5]))
+    # scene.Simulation.addChild(Intestinev2(rotation=[90.0, 0.0, 0.0],translation=[5,50,28], color=[1.0, 1.0, 1.0, 0.5]))
     scene.Simulation.addChild(ServoMotor(name="ServoMotor", translation=[0, 0, 0], rotation=[0, 0, 0]))
     # animate(animation, {'target': scene.Simulation.ServoMotor}, duration=10., mode='loop')
     # scene.Simulation.ServoMotor.Articulation.ServoWheel.dofs.showObject = True
 
-    box1 = FixingBox(scene.Simulation,
-                     scene.Simulation.Intestine.MechanicalModel,
-                     name="box1",
-                     translation=[5, 65, 28],
-                     scale=[30., 30., 30.])
-    box1.BoxROI.drawBoxes = True
-
-    box2 = FixingBox(scene.Simulation,
-                     scene.Simulation.Intestine.MechanicalModel,
-                     name="box2",
-                     translation=[5, -60, 28],
-                     scale=[30., 30., 30.])
-    box2.BoxROI.drawBoxes = True
+    # box1 = FixingBox(scene.Simulation,
+    #                  scene.Simulation.Intestine.MechanicalModel,
+    #                  name="box1",
+    #                  translation=[5, 65, 28],
+    #                  scale=[30., 30., 30.])
+    # box1.BoxROI.drawBoxes = True
+    #
+    # box2 = FixingBox(scene.Simulation,
+    #                  scene.Simulation.Intestine.MechanicalModel,
+    #                  name="box2",
+    #                  translation=[5, -60, 28],
+    #                  scale=[30., 30., 30.])
+    # box2.BoxROI.drawBoxes = True
 
     # scene.Simulation.addChild(scene.Modelling.ServoMotor.box1)
     scene.addObject(EmptyController(name='controller', ServoMotor=scene.Simulation.ServoMotor,scene=scene,
-                                    intestineCollision=scene.Simulation.Intestine.CollisionModel,
-                                    intestineCollisionInner=scene.Simulation.Intestine.CollisionModel_inner
+                                    # intestineCollision=scene.Simulation.Intestine.CollisionModel,
+                                    # intestineCollisionInner=scene.Simulation.Intestine.CollisionModel_inner
                                     ))
     return scene
 

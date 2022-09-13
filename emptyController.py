@@ -25,6 +25,18 @@ def quat_vector(quat):
     # vector=quat[3:7].as_as_euler('xyz', thetadegrees=False)
     return vector
 
+def quat_rot(quat):
+    '''
+    四元数转换为旋转矩阵
+    :param quat: [qx,qy,qz,w]
+    :return: [x,y,z]
+    '''
+    # 构造四元数
+    r = R.from_quat(quat)
+    # 转化为旋转矩阵
+    rotation_matrix = r.as_matrix()
+    return rotation_matrix
+
 
 # This python script shows the functions to be implemented
 # in order to create your Controller in python
@@ -92,15 +104,26 @@ class EmptyController(Sofa.Core.Controller):
                     # print(ID)
                     # print(constraint_mat[left:right])
                     # print("点id：", ID, "矩阵", constraint_mat[left:right])
+                    # # 1第一种力在世界坐标系下
                     # F_collies[ID] += np.array(constraint_mat[left:right]) * constraintLambda[i] / 0.001
+
+                    # 2先计算世界坐标系下的力，再左乘旋转矩阵转换到局部坐标系
+                    # print("旋转矩阵")
+                    # print(quat_rot(pos[3:7]))
+                    # print("力")
+                    # print(np.dot(constraint_mat[left:right],constraintLambda[i]))
+                    # print("final")
+                    F_collies[ID] += np.matmul(quat_rot(pos[3:7]),np.dot(constraint_mat[left:right],constraintLambda[i]).T).T/0.001
                     # F_collies[ID] += np.array([1,1,1])*abs(constraintLambda[i]) / 0.001
                     # 计算约束力向量与刚性接触面的法向向量的内积
-                    ans = np.dot(np.array(constraint_mat[left:right]) * constraintLambda[i], cube_pos)
-                    if ans >= 0:
-                        F_collies[ID] += np.array([1, 1, 1]) * abs(constraintLambda[i]) / 0.001
-                    elif ans < 0:
-                        F_collies[ID] -= np.array([1, 1, 1]) * abs(constraintLambda[i]) / 0.001
-                    # F_collies[ID] += np.array([1,1,1])*constraintLambda[i] / 0.001
+                    # ans = np.dot(np.array(constraint_mat[left:right]) * constraintLambda[i], cube_pos)
+                    # if ans >= 0:
+                    #     print("1\n")
+                    #     F_collies[ID] += np.array([1, 1, 1]) * abs(constraintLambda[i]) / 0.001
+                    # elif ans < 0:
+                    #     print("2\n")
+                    #     F_collies[ID] += np.array([1, 1, 1]) * abs(constraintLambda[i]) / 0.001
+
 
         print(F_collies)
         # return 0
