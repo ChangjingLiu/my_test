@@ -74,7 +74,7 @@ class EmptyController(Sofa.Core.Controller):
         # 获取Cube的姿态
         pos = self.Cube.mstate.position.value[0]
         cube_pos = quat_vector(pos[3:7])
-        # print(cube_pos)
+        print(pos[3:7])
 
         # 获取constraint每个约束的法向力（对刚性接触面的方向未知）
         constraintLambda = self.GenericConstraintSolver.constraintForces.value
@@ -100,7 +100,7 @@ class EmptyController(Sofa.Core.Controller):
                     # 第i个约束影响的节点id的方向
                     left = id_index + 1
                     right = left + 3
-
+                    print(type(constraint_mat[left:right]))
                     # print(ID)
                     # print(constraint_mat[left:right])
                     # print("点id：", ID, "矩阵", constraint_mat[left:right])

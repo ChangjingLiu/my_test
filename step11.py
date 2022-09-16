@@ -64,8 +64,33 @@ class EmptyController(Sofa.Core.Controller):
             self.intestineCollisionInner = kwargs["intestineCollisionInner"]
 
         self.GenericConstraintSolver = kwargs['GenericConstraintSolver']
+
         self.Sensor1_Constraint = kwargs['Sensors'].Sensor1.CollisionModel.MechanicalObject.constraint
-        self.Sensor1 = (kwargs['Sensors'].Sensor1.MechanicalModel.dofs.position.value[0][3:7])
+        #
+        self.Constraints = []
+        self.Constraints.append(kwargs['Sensors'].Sensor1.CollisionModel.MechanicalObject.constraint)
+        self.Constraints.append(kwargs['Sensors'].Sensor2.CollisionModel.MechanicalObject.constraint)
+        self.Constraints.append(kwargs['Sensors'].Sensor3.CollisionModel.MechanicalObject.constraint)
+        self.Constraints.append(kwargs['Sensors'].Sensor4.CollisionModel.MechanicalObject.constraint)
+        self.Constraints.append(kwargs['Sensors'].Sensor5.CollisionModel.MechanicalObject.constraint)
+        self.Constraints.append(kwargs['Sensors'].Sensor6.CollisionModel.MechanicalObject.constraint)
+        self.Constraints.append(kwargs['Sensors'].Sensor7.CollisionModel.MechanicalObject.constraint)
+        self.Constraints.append(kwargs['Sensors'].Sensor8.CollisionModel.MechanicalObject.constraint)
+        self.Constraints.append(kwargs['Sensors'].Sensor9.CollisionModel.MechanicalObject.constraint)
+        self.Constraints.append(kwargs['Sensors'].Sensor10.CollisionModel.MechanicalObject.constraint)
+        #
+        self.Sensor1 = (kwargs['Sensors'].Sensor1.MechanicalModel.dofs)
+        self.Sensors = []
+        self.Sensors.append(kwargs['Sensors'].Sensor1.MechanicalModel.dofs)
+        self.Sensors.append(kwargs['Sensors'].Sensor2.MechanicalModel.dofs)
+        self.Sensors.append(kwargs['Sensors'].Sensor3.MechanicalModel.dofs)
+        self.Sensors.append(kwargs['Sensors'].Sensor4.MechanicalModel.dofs)
+        self.Sensors.append(kwargs['Sensors'].Sensor5.MechanicalModel.dofs)
+        self.Sensors.append(kwargs['Sensors'].Sensor6.MechanicalModel.dofs)
+        self.Sensors.append(kwargs['Sensors'].Sensor7.MechanicalModel.dofs)
+        self.Sensors.append(kwargs['Sensors'].Sensor8.MechanicalModel.dofs)
+        self.Sensors.append(kwargs['Sensors'].Sensor9.MechanicalModel.dofs)
+        self.Sensors.append(kwargs['Sensors'].Sensor10.MechanicalModel.dofs)
         # self.Cube = kwargs['Cube']
 
         self.stepsize = 0.01
@@ -73,49 +98,70 @@ class EmptyController(Sofa.Core.Controller):
 
     def onAnimateBeginEvent(self, event):  # called at each begin of animation step
 
-        # 获取constraint每个约束的法向力（对刚性接触面的方向未知）
+        # 获取constraint每个约束的法向力（对刚性接触面的方向未知）\
         constraintLambda = self.GenericConstraintSolver.constraintForces.value
         # print(constraintlambda)
-        constraint = self.Sensor1_Constraint.value
-        Sensor1_pos = quat_rot(self.Sensor1)
-        print(constraint)
-        constraint_oneline = constraint.split('\n')
-        # len(self.constraintForcesLambda)
-        # 每个节点的法向约束力
-        F_collies = np.zeros((200, 1))
 
-        # 对每一个约束进行计算
-        for i in range(len(constraint_oneline)):
-            # 第i个约束
-            constraint_mat = list(map(eval, constraint_oneline[i].split()))
-            if len(constraint_mat) > 0:
-                # 第i个约束的个数j，即第二列
-                # print("约束id：", i, "，约束个数", constraint_mat[1])
-                for j in range(constraint_mat[1]):
-                    # 第i个约束影响的节点id
-                    id_index = 2 + j * 4
-                    ID = constraint_mat[id_index]
-                    # 第i个约束影响的节点id的方向
-                    left = id_index + 1
-                    right = left + 3
+        # 对每个传感器进行计算
+        f_tmp = np.zeros((10, 3))
+        for n in range(0,10,1):
+            constraint = self.Constraints[n].value
+            Sensor_pos = quat_rot(self.Sensors[n].position.value[0][3:7])
+            # constraint格式整理成一行
+            constraint_oneline = constraint.split('\n')
+            # 每个节点的法向约束力
 
-                    # print(ID)
-                    # print(constraint_mat[left:right])
-                    # print("点id：", ID, "矩阵", constraint_mat[left:right])
-                    # F_collies[ID] += np.array(constraint_mat[left:right]) * constraintLambda[i] / 0.001
-                    # F_collies[ID] += np.array([1,1,1])*abs(constraintLambda[i]) / 0.001
 
-                    F_collies[ID] += np.matmul(Sensor1_pos,np.dot(constraint_mat[left:right], constraintLambda[i]).T).T / 0.001
+            # 对每一个约束进行计算
+            for i in range(len(constraint_oneline)):
+                # 第i个约束
+                constraint_mat = list(map(eval, constraint_oneline[i].split()))
+                if len(constraint_mat) > 0:
+                    # 第i个约束的个数j，即第二列
+                    # print("约束id：", i, "，约束个数", constraint_mat[1])
+                    for j in range(constraint_mat[1]):
+                        # 第i个约束影响的节点id
+                        id_index = 2 + j * 4
+                        ID = constraint_mat[id_index]
+                        # 第i个约束影响的节点id的方向
+                        left = id_index + 1
+                        right = left + 3
+                        array_one = np.array([constraint_mat[left:right]]).T
+                        # 计算在世界坐标系下的力
+                        force = np.dot(array_one, constraintLambda[i])
+                        # 左乘旋转矩阵
+                        # F_collies[ID] +=np.matmul(Sensor1_pos,force).T[0]
+                        f_tmp[n] += np.matmul(Sensor_pos, force).T[0]
 
-                    # 计算约束力向量与刚性接触面的法向向量的内积
-                    # ans = np.dot(np.array(constraint_mat[left:right]) * constraintLambda[i], Sensor1_pos)
-                    # if ans >= 0:
-                    #     F_collies[ID] += np.array([1]) * abs(constraintLambda[i]) / 0.0001
-                    # elif ans < 0:
-                    #     F_collies[ID] -= np.array([1]) * abs(constraintLambda[i]) / 0.0001
-                    # F_collies[ID] += np.array([1,1,1])*constraintLambda[i] / 0.001
+        # constraint = self.Constraints[0].value
+        # Sensor_pos = quat_rot(self.Sensors[0].position.value[0][3:7])
+        # # constraint格式整理成一行
+        # constraint_oneline = constraint.split('\n')
+        # # 每个节点的法向约束力
+        # f_tmp=np.zeros((1,3))
+        #
+        # # 对每一个约束进行计算
+        # for i in range(len(constraint_oneline)):
+        #     # 第i个约束
+        #     constraint_mat = list(map(eval, constraint_oneline[i].split()))
+        #     if len(constraint_mat) > 0:
+        #         # 第i个约束的个数j，即第二列
+        #         # print("约束id：", i, "，约束个数", constraint_mat[1])
+        #         for j in range(constraint_mat[1]):
+        #             # 第i个约束影响的节点id
+        #             id_index = 2 + j * 4
+        #             ID = constraint_mat[id_index]
+        #             # 第i个约束影响的节点id的方向
+        #             left = id_index + 1
+        #             right = left + 3
+        #             array_one=np.array([constraint_mat[left:right]]).T
+        #             # 计算在世界坐标系下的力
+        #             force=np.dot(array_one,constraintLambda[i])
+        #             # 左乘旋转矩阵
+        #             # F_collies[ID] +=np.matmul(Sensor1_pos,force).T[0]
+        #             f_tmp+=np.matmul(Sensor_pos,force).T[0]
 
-        print(F_collies)
+        print(f_tmp)
 
         pass
 
