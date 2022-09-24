@@ -74,7 +74,7 @@ class EmptyController(Sofa.Core.Controller):
         # 获取Cube的姿态
         pos = self.Cube.mstate.position.value[0]
         cube_pos = quat_vector(pos[3:7])
-        print(pos[3:7])
+        # print(pos[3:7])
 
         # 获取constraint每个约束的法向力（对刚性接触面的方向未知）
         constraintLambda = self.GenericConstraintSolver.constraintForces.value
@@ -100,7 +100,7 @@ class EmptyController(Sofa.Core.Controller):
                     # 第i个约束影响的节点id的方向
                     left = id_index + 1
                     right = left + 3
-                    print(type(constraint_mat[left:right]))
+                    # print(type(constraint_mat[left:right]))
                     # print(ID)
                     # print(constraint_mat[left:right])
                     # print("点id：", ID, "矩阵", constraint_mat[left:right])
@@ -113,7 +113,16 @@ class EmptyController(Sofa.Core.Controller):
                     # print("力")
                     # print(np.dot(constraint_mat[left:right],constraintLambda[i]))
                     # print("final")
-                    F_collies[ID] += np.matmul(quat_rot(pos[3:7]),np.dot(constraint_mat[left:right],constraintLambda[i]).T).T/0.001
+                    array_one = np.array([constraint_mat[left:right]]).T
+                    # 计算在世界坐标系下的力
+                    force = np.dot(array_one, constraintLambda[i])
+                    # print(array_one)
+                    # print(constraintLambda[i])
+                    # 左乘旋转矩阵
+                    # F_collies[ID] += force.T[0]
+                    F_collies[ID] +=np.matmul(quat_rot(pos[3:7]),force).T[0]
+                    # f_tmp[n] += np.matmul(Sensor_pos, force).T[0]
+                    # F_collies[ID] += np.matmul(quat_rot(pos[3:7]),np.dot(constraint_mat[left:right],constraintLambda[i]).T).T/0.001
                     # F_collies[ID] += np.array([1,1,1])*abs(constraintLambda[i]) / 0.001
                     # 计算约束力向量与刚性接触面的法向向量的内积
                     # ans = np.dot(np.array(constraint_mat[left:right]) * constraintLambda[i], cube_pos)

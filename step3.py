@@ -79,7 +79,7 @@ def createScene(rootNode):
     Floor(root.Modelling,
           color=[1.0, 0.0, 0.0],
           translation=[0.0, -160.0, 0.0],
-          rotation=[0., 0., 10.],
+          rotation=[0., 0., 15.],
           isAStaticObject=True)
 
     # Instanciating the FixingBox prefab into the graph, constraining the mechanical object of the ElasticBody.

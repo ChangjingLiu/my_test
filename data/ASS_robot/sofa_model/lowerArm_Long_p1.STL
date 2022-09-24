@@ -1,0 +1,44 @@
+solid lowerArm_Long_p1
+   facet normal 9.972900e-01 0.000000e+00 7.357041e-02
+      outer loop
+         vertex 3.581847e+00 -2.750000e+00 2.620420e+01
+         vertex 3.241191e+00 -2.750000e+00 3.082198e+01
+         vertex 3.241191e+00 -4.200000e+00 3.082198e+01
+      endloop
+   endfacet
+   facet normal 9.972900e-01 1.167389e-06 7.357078e-02
+      outer loop
+         vertex 3.650618e+00 -4.200000e+00 2.527200e+01
+         vertex 3.581847e+00 -2.750000e+00 2.620420e+01
+         vertex 3.241191e+00 -4.200000e+00 3.082198e+01
+      endloop
+   endfacet
+   facet normal 9.972899e-01 -0.000000e+00 7.357258e-02
+      outer loop
+         vertex 3.581847e+00 2.750001e+00 2.620420e+01
+         vertex 3.581847e+00 -2.750000e+00 2.620420e+01
+         vertex 3.650618e+00 -4.200000e+00 2.527200e+01
+      endloop
+   endfacet
+   facet normal 9.972899e-01 -0.000000e+00 7.357258e-02
+      outer loop
+         vertex 3.650618e+00 4.200001e+00 2.527200e+01
+         vertex 3.581847e+00 2.750001e+00 2.620420e+01
+         vertex 3.650618e+00 -4.200000e+00 2.527200e+01
+      endloop
+   endfacet
+   facet normal 9.972900e-01 -1.403051e-06 7.357041e-02
+      outer loop
+         vertex 3.581847e+00 2.750001e+00 2.620420e+01
+         vertex 3.650618e+00 4.200001e+00 2.527200e+01
+         vertex 3.241191e+00 2.750001e+00 3.082198e+01
+      endloop
+   endfacet
+   facet normal 9.972900e-01 0.000000e+00 7.357078e-02
+      outer loop
+         vertex 3.650618e+00 4.200001e+00 2.527200e+01
+         vertex 3.241191e+00 4.200001e+00 3.082198e+01
+         vertex 3.241191e+00 2.750001e+00 3.082198e+01
+      endloop
+   endfacet
+endsolid
