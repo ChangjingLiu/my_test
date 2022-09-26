@@ -7,7 +7,8 @@ Step 7:
 
 '''
 import os, sys
-import Sofa
+sys.path.append("D:\\sofa\\DefrostSofaBundle_win64_python3.8_v22.06.00-beta4\\plugins\\STLIB\\lib\\python3\\site-packages")
+import Sofa.Core
 from stlib3.scene import Scene
 import numpy as np
 from intestinev1 import Intestinev1, Intestinev2, Intestinev3, Intestinev4
@@ -656,12 +657,12 @@ def createScene(rootNode):
                                     GenericConstraintSolver=scene.GenericConstraintSolver,
                                     Sensors=scene.Simulation.Robot.Sensors
                                     ))
-    return scene
-
-
+    return rootNode
+#
+#
 if __name__ == '__main__':
     # runSofa.exe路径
     path = "D:/Software_download/sofa_22/SOFA_robosoft2022_python-3.8_Windows/bin/runSofa"
-    path1 = "F:/code_repo/sofa/build/bin/RelWithDebInfo/runSofa"
+    path1 = "D:/sofa/DefrostSofaBundle_win64_python3.8_v22.06.00-beta4/bin/runSofa"
     # 使用Sofa运行该文件
     os.system(path1 + " " + sys.argv[0])
