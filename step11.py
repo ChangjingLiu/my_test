@@ -7,7 +7,9 @@ Step 7:
 
 '''
 import os, sys
-sys.path.append("D:\\sofa\\DefrostSofaBundle_win64_python3.8_v22.06.00-beta4\\plugins\\STLIB\\lib\\python3\\site-packages")
+
+sys.path.append(
+    "D:\\sofa\\DefrostSofaBundle_win64_python3.8_v22.06.00-beta4\\plugins\\STLIB\\lib\\python3\\site-packages")
 import Sofa.Core
 from stlib3.scene import Scene
 import numpy as np
@@ -85,10 +87,10 @@ class EmptyController(Sofa.Core.Controller):
             self.Sensors.append(self.Sensorslist.getChild("Sensor" + str(i)).MechanicalModel.dofs)
 
         #
-        self.stepsize = 0.01
-        self.d = 1
-        self.steppressure = 20
-        self.initFlag=1;
+        self.stepsize = 0.005
+        self.d = 0.1
+        self.steppressure = 10
+        self.initFlag = 0;
 
     # Default BaseObject functions********************************
     def init(self):
@@ -97,11 +99,28 @@ class EmptyController(Sofa.Core.Controller):
 
     def onAnimateBeginEvent(self, event):  # called at each begin of animation step
 
-        #初始加持状态生成
-        if self.initFlag==1:
-            self.intestineCollision.SurfacePressureForceField.pressure.value -= 1
-            if self.intestineCollision.SurfacePressureForceField.pressure.value<-360:
-                self.initFlag=0
+        # 初始加持状态生成
+        if self.initFlag == 0:
+            self.intestineCollision.SurfacePressureForceField.pressure.value -= 0.5
+            if self.intestineCollision.SurfacePressureForceField.pressure.value < -400:
+                self.initFlag = 0.5
+        if self.initFlag == 0.5:
+            for i in range(1, 11, 1):
+                self.Sensorslist.getChild("Sensor" + str(i)).CollisionModel.LineCollisionModel.contactStiffness=10000
+                self.Sensorslist.getChild("Sensor" + str(i)).CollisionModel.TriangleCollisionModel.contactStiffness = 10000
+            self.initFlag=1
+
+        if self.initFlag == 1:
+            self.ServoMotor.angleIn[1] -= 0.0005
+            theta1 = np.pi - self.ServoMotor.angleIn[1]
+            theta24 = getAngle(11.01 / 2, 30.58, 26.41, np.pi - self.ServoMotor.angleIn[1])
+            self.ServoMotor.angleIn[0] = -theta24 + np.pi / 2
+            self.ServoMotor.angleIn[2] = np.pi - 2 * (np.pi * 2 - np.pi / 2 - theta24 - theta1)
+            self.ServoMotor.angleIn[3] = self.ServoMotor.angleIn[1]
+
+            if self.ServoMotor.angleIn[1]<0.34:
+                self.initFlag = 2
+
 
         # 计算传感器的力
         # 获取constraint每个约束的法向力（对刚性接触面的方向未知）\
@@ -110,6 +129,7 @@ class EmptyController(Sofa.Core.Controller):
 
         # 对每个传感器进行计算
         f_tmp = np.zeros((10, 3))
+        f = np.zeros(10)
         for n in range(0, 10, 1):
             constraint = self.Constraints[n].value
             Sensor_pos = quat_rot(self.Sensors[n].position.value[0][3:7])
@@ -139,8 +159,18 @@ class EmptyController(Sofa.Core.Controller):
                         f_tmp[n] += np.matmul(Sensor_pos, force).T[0]
                         # 不左乘旋转矩阵
                         # f_tmp[n] += force.T[0]
+        f[0] = f_tmp[0][2]
+        f[1] = f_tmp[1][0]
+        f[2] = f_tmp[2][2]
+        f[3] = f_tmp[3][0]
+        f[4] = f_tmp[4][2]
+        f[5] = f_tmp[5][0]
+        f[6] = f_tmp[6][2]
+        f[7] = f_tmp[7][0]
+        f[8] = f_tmp[8][2]
+        f[9] = f_tmp[9][2]
 
-        print(f_tmp)
+        print(f)
         print("\n")
 
         pass
@@ -186,34 +216,44 @@ class EmptyController(Sofa.Core.Controller):
             print("You pressed the 8 key")
         if ord(key) == 19:  # up
             print("You pressed the Up key")
-            # wa[1] = abs(math.cos(factor * 2 * math.pi)) + 0.2  # create angle
-            self.ServoMotor.angleIn[1] = self.ServoMotor.angleIn[1] + self.stepsize
-            theta1 = np.pi - self.ServoMotor.angleIn[1]
-            theta24 = getAngle(11.01 / 2, 30.58, 26.41, np.pi - self.ServoMotor.angleIn[1])
-            self.ServoMotor.angleIn[0] = -theta24 + np.pi / 2
-            self.ServoMotor.angleIn[2] = np.pi - 2 * (np.pi * 2 - np.pi / 2 - theta24 - theta1)
-            self.ServoMotor.angleIn[3] = self.ServoMotor.angleIn[1]
-
-        if ord(key) == 21:  # down
-            print("You pressed the Down key")
-            self.ServoMotor.angleIn[1] = self.ServoMotor.angleIn[1] - self.stepsize
-            theta1 = np.pi - self.ServoMotor.angleIn[1]
-            theta24 = getAngle(11.01 / 2, 30.58, 26.41, np.pi - self.ServoMotor.angleIn[1])
-            self.ServoMotor.angleIn[0] = -theta24 + np.pi / 2
-            self.ServoMotor.angleIn[2] = np.pi - 2 * (np.pi * 2 - np.pi / 2 - theta24 - theta1)
-            self.ServoMotor.angleIn[3] = self.ServoMotor.angleIn[1]
-
-        if ord(key) == 91:  # {[
-            print("###")
             # print(self.scene.Simulation.Robot.Articulation.ArmWheel.dofs.position.value[0][0])
             with self.scene.Simulation.Robot.Articulation.ArmWheel.dofs.position.writeableArray() as pos:
                 for p in pos:
                     p[2] -= 0.1
 
-        if ord(key) == 93:  # }]
+        if ord(key) == 21:  # down
+            print("You pressed the Down key")
             with self.scene.Simulation.Robot.Articulation.ArmWheel.dofs.position.writeableArray() as pos:
                 for p in pos:
                     p[2] += 0.1
+
+        if ord(key) == 18:  # left
+            with self.scene.Simulation.Robot.Articulation.ArmWheel.dofs.position.writeableArray() as pos:
+                for p in pos:
+                    p[0] -= 0.1
+
+        if ord(key) == 20:  # right
+            with self.scene.Simulation.Robot.Articulation.ArmWheel.dofs.position.writeableArray() as pos:
+                for p in pos:
+                    p[0] += 0.1
+
+        if ord(key) == 91:  # {[
+            self.ServoMotor.angleIn[1] += self.stepsize
+            theta1 = np.pi - self.ServoMotor.angleIn[1]
+            theta24 = getAngle(11.01 / 2, 30.58, 26.41, np.pi - self.ServoMotor.angleIn[1])
+            self.ServoMotor.angleIn[0] = -theta24 + np.pi / 2
+            self.ServoMotor.angleIn[2] = np.pi - 2 * (np.pi * 2 - np.pi / 2 - theta24 - theta1)
+            self.ServoMotor.angleIn[3] = self.ServoMotor.angleIn[1]
+
+
+        if ord(key) == 93:  # }]
+            self.ServoMotor.angleIn[1] -= self.stepsize
+            theta1 = np.pi - self.ServoMotor.angleIn[1]
+            theta24 = getAngle(11.01 / 2, 30.58, 26.41, np.pi - self.ServoMotor.angleIn[1])
+            self.ServoMotor.angleIn[0] = -theta24 + np.pi / 2
+            self.ServoMotor.angleIn[2] = np.pi - 2 * (np.pi * 2 - np.pi / 2 - theta24 - theta1)
+            self.ServoMotor.angleIn[3] = self.ServoMotor.angleIn[1]
+
 
 
 def getAngle(x1, x2, x3, theta1):
@@ -380,9 +420,9 @@ def CreateSensor(name="Sensor", filepath='', rotation=None, translation=None,
     collisionmodel.addObject('MeshTopology', src="@loader")
     collisionmodel.addObject('MechanicalObject')
     # 传感器的碰撞组为1
-    # collisionmodel.addObject('PointCollisionModel', group=1)
-    collisionmodel.addObject('LineCollisionModel', group=1)
-    collisionmodel.addObject('TriangleCollisionModel', group=1)
+    # collisionmodel.addObject('PointCollisionModel', contactFriction=0.5,contactStiffness=100,group=1)
+    collisionmodel.addObject('LineCollisionModel', contactFriction=0.5,contactStiffness=10,group=1)
+    collisionmodel.addObject('TriangleCollisionModel', contactFriction=0.5,contactStiffness=10,group=1)
     collisionmodel.addObject('RigidMapping',
                              input=mechanicalModel.dofs.getLinkPath()
                              )
@@ -447,7 +487,7 @@ class ServoMotor(Sofa.Prefab):
                      type='vector<Vec3d>',
                      value=[[0.0, 0.0, -30.58], [0.0, 0.0, -26.41],
                             [0.0, 0.0, -26.41], [0.0, 0.0, -30.58],
-                            [0.0, -22.6, -30.58],[0.0, -22.6, -26.41],
+                            [0.0, -22.6, -30.58], [0.0, -22.6, -26.41],
                             ])
         self.addData(name='sensorRotation', group='S90Properties', help='Rotation of Sensor',
                      type='vector<Vec3d>',
@@ -484,7 +524,6 @@ class ServoMotor(Sofa.Prefab):
                          [0., 11.3, -26.41],
                          [0., 0., -30.58],
                      ])
-
 
         # Articulation0
         angle = self.addChild('Articulation')
@@ -616,7 +655,7 @@ def createScene(rootNode):
     scene.addObject('LocalMinDistance',
                     alarmDistance=1, contactDistance=0.2,
                     angleCone=0.01)
-    scene.addObject('FreeMotionAnimationLoop',parallelCollisionDetectionAndFreeMotion=True,parallelODESolving=True)
+    scene.addObject('FreeMotionAnimationLoop', parallelCollisionDetectionAndFreeMotion=True, parallelODESolving=True)
     scene.addObject('GenericConstraintSolver', tolerance=1e-7, maxIterations=2000,
                     computeConstraintForces=True,
                     multithreading=True
@@ -658,6 +697,8 @@ def createScene(rootNode):
                                     Sensors=scene.Simulation.Robot.Sensors
                                     ))
     return rootNode
+
+
 #
 #
 if __name__ == '__main__':
