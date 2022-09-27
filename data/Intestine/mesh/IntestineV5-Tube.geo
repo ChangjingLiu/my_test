@@ -43,3 +43,29 @@ Field[1].VIn = 2.5;
 Field[1].ZMin = 30;
 //+
 Field[1].VIn = 3;
+//+
+Field[1].ZMax = 65;
+//+
+Field[1].ZMin = 25;
+//+
+Field[1].ZMax = 60;
+//+
+Field[1].ZMin = 30;
+//+
+Field[1].ZMax = 65;
+//+
+Field[1].ZMin = 25;
+//+
+Field[1].ZMax = 70;
+//+
+Field[1].ZMin = 30;
+//+
+Field[1].ZMax = 75;
+//+
+Field[1].ZMin = 35;
+//+
+Field[1].VOut = 200;
+//+
+Field[1].VIn = 5;
+//+
+Field[1].VOut = 300;

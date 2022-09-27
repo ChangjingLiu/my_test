@@ -13,7 +13,7 @@ sys.path.append(
 import Sofa.Core
 from stlib3.scene import Scene
 import numpy as np
-from intestinev1 import Intestinev1, Intestinev2, Intestinev3, Intestinev4
+from intestinev1 import Intestinev1, Intestinev2, Intestinev3, Intestinev4,Intestinev5
 
 dirPath = os.path.dirname(os.path.abspath(__file__)) + '/'
 from stlib3.visuals import VisualModel
@@ -118,8 +118,28 @@ class EmptyController(Sofa.Core.Controller):
             self.ServoMotor.angleIn[2] = np.pi - 2 * (np.pi * 2 - np.pi / 2 - theta24 - theta1)
             self.ServoMotor.angleIn[3] = self.ServoMotor.angleIn[1]
 
-            if self.ServoMotor.angleIn[1]<0.34:
+            if self.ServoMotor.angleIn[1]<0.8:
                 self.initFlag = 2
+        if self.initFlag == 2:
+            self.intestineCollision.SurfacePressureForceField.pressure.value += 1
+            if self.intestineCollision.SurfacePressureForceField.pressure.value >0:
+                self.initFlag = 3
+        if self.initFlag == 3:
+            with self.scene.Simulation.Robot.Articulation.ArmWheel.dofs.position.writeableArray() as pos:
+                for p in pos:
+                    p[2] -= 0.1
+                if pos[0][2]<-0.4:
+                    self.initFlag =4
+        if self.initFlag == 4:
+            self.ServoMotor.angleIn[1] -= 0.0005
+            theta1 = np.pi - self.ServoMotor.angleIn[1]
+            theta24 = getAngle(11.01 / 2, 30.58, 26.41, np.pi - self.ServoMotor.angleIn[1])
+            self.ServoMotor.angleIn[0] = -theta24 + np.pi / 2
+            self.ServoMotor.angleIn[2] = np.pi - 2 * (np.pi * 2 - np.pi / 2 - theta24 - theta1)
+            self.ServoMotor.angleIn[3] = self.ServoMotor.angleIn[1]
+
+            if self.ServoMotor.angleIn[1] < 0.34:
+                self.initFlag = 5
 
 
         # 计算传感器的力
@@ -170,7 +190,7 @@ class EmptyController(Sofa.Core.Controller):
         f[8] = f_tmp[8][2]
         f[9] = f_tmp[9][2]
 
-        print(f)
+        print(f_tmp)
         print("\n")
 
         pass
@@ -653,10 +673,10 @@ def createScene(rootNode):
     scene.addObject('RuleBasedContactManager', responseParams="mu=" + str(frictionCoef),
                     name='Response', response='FrictionContactConstraint')
     scene.addObject('LocalMinDistance',
-                    alarmDistance=1, contactDistance=0.2,
+                    alarmDistance=1.5, contactDistance=0.3,
                     angleCone=0.01)
     scene.addObject('FreeMotionAnimationLoop', parallelCollisionDetectionAndFreeMotion=True, parallelODESolving=True)
-    scene.addObject('GenericConstraintSolver', tolerance=1e-7, maxIterations=2000,
+    scene.addObject('GenericConstraintSolver', tolerance=1e-6, maxIterations=2000,
                     computeConstraintForces=True,
                     multithreading=True
                     )
@@ -670,7 +690,7 @@ def createScene(rootNode):
 
     # simulation model
     scene.Simulation.addChild(
-        Intestinev2(rotation=[90.0, 0.0, 0.0], translation=[5, 50, 28], color=[1.0, 1.0, 1.0, 0.5]))
+        Intestinev5(rotation=[90.0, 0.0, 0.0], translation=[5, 50, 28], color=[1.0, 1.0, 1.0, 0.5]))
     scene.Simulation.addChild(ServoMotor(name="Robot", translation=[0, 0, 1.5], rotation=[0, 0, 0]))
     # animate(animation, {'target': scene.Simulation.ServoMotor}, duration=10., mode='loop')
     # scene.Simulation.ServoMotor.Articulation.ServoWheel.dofs.showObject = True
