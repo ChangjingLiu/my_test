@@ -69,3 +69,7 @@ Field[1].VOut = 200;
 Field[1].VIn = 5;
 //+
 Field[1].VOut = 300;
+//+
+Field[1].ZMin = 33;
+//+
+Field[1].VOut = 400;

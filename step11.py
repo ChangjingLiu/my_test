@@ -88,9 +88,9 @@ class EmptyController(Sofa.Core.Controller):
 
         #
         self.stepsize = 0.005
-        self.d = 0.1
+        self.d = 0.01
         self.steppressure = 10
-        self.initFlag = 0;
+        self.initFlag = 0
 
     # Default BaseObject functions********************************
     def init(self):
@@ -102,12 +102,40 @@ class EmptyController(Sofa.Core.Controller):
         # 初始加持状态生成
         if self.initFlag == 0:
             self.intestineCollision.SurfacePressureForceField.pressure.value -= 0.5
-            if self.intestineCollision.SurfacePressureForceField.pressure.value < -400:
+            if self.intestineCollision.SurfacePressureForceField.pressure.value < -450:
                 self.initFlag = 0.5
         if self.initFlag == 0.5:
+            with self.scene.Simulation.Robot.Articulation.ArmWheel.dofs.position.writeableArray() as pos:
+                for p in pos:
+                    p[0] += 0.05
+                if pos[0][0]>4:
+                    self.initFlag =0.65
+                    for i in range(5, 9, 1):
+                        self.Sensorslist.getChild(
+                            "Sensor" + str(i)).CollisionModel.LineCollisionModel.contactStiffness = 1e7
+                        self.Sensorslist.getChild(
+                            "Sensor" + str(i)).CollisionModel.TriangleCollisionModel.contactStiffness = 1e7
+        if self.initFlag == 0.65:
+            with self.scene.Simulation.Robot.Articulation.ArmWheel.dofs.position.writeableArray() as pos:
+                for p in pos:
+                    p[0] -= 0.05
+                if pos[0][0]<-4:
+                    self.initFlag =0.75
+                    for i in range(1, 11, 1):
+                        self.Sensorslist.getChild(
+                            "Sensor" + str(i)).CollisionModel.LineCollisionModel.contactStiffness = 1e7
+                        self.Sensorslist.getChild(
+                            "Sensor" + str(i)).CollisionModel.TriangleCollisionModel.contactStiffness = 1e7
+        if self.initFlag == 0.75:
+            with self.scene.Simulation.Robot.Articulation.ArmWheel.dofs.position.writeableArray() as pos:
+                for p in pos:
+                    p[0] += 0.05
+                if pos[0][0]>0:
+                    self.initFlag =0.85
+        if self.initFlag == 0.85:
             for i in range(1, 11, 1):
-                self.Sensorslist.getChild("Sensor" + str(i)).CollisionModel.LineCollisionModel.contactStiffness=10000
-                self.Sensorslist.getChild("Sensor" + str(i)).CollisionModel.TriangleCollisionModel.contactStiffness = 10000
+                self.Sensorslist.getChild("Sensor" + str(i)).CollisionModel.LineCollisionModel.contactStiffness=1e7
+                self.Sensorslist.getChild("Sensor" + str(i)).CollisionModel.TriangleCollisionModel.contactStiffness = 1e7
             self.initFlag=1
 
         if self.initFlag == 1:
@@ -441,8 +469,8 @@ def CreateSensor(name="Sensor", filepath='', rotation=None, translation=None,
     collisionmodel.addObject('MechanicalObject')
     # 传感器的碰撞组为1
     # collisionmodel.addObject('PointCollisionModel', contactFriction=0.5,contactStiffness=100,group=1)
-    collisionmodel.addObject('LineCollisionModel', contactFriction=0.5,contactStiffness=10,group=1)
-    collisionmodel.addObject('TriangleCollisionModel', contactFriction=0.5,contactStiffness=10,group=1)
+    collisionmodel.addObject('LineCollisionModel', contactFriction=0.5,contactStiffness=50,group=1)
+    collisionmodel.addObject('TriangleCollisionModel', contactFriction=0.5,contactStiffness=50,group=1)
     collisionmodel.addObject('RigidMapping',
                              input=mechanicalModel.dofs.getLinkPath()
                              )
@@ -627,7 +655,7 @@ class ServoMotor(Sofa.Prefab):
         for i in range(1, 11, 1):
             sensor = sensors.addChild(
                 CreateSensor(name='Sensor' + str(i),
-                             filepath='data/Ass_robot/sofa_model/sensor_plane.stl',
+                             filepath='data/Ass_robot/sofa_model/sensor_surface.stl',
                              # translation=list(self.translation.value),
                              rotation=self.sensorRotation.value[i - 1],
                              collisiontranslation=self.sensorCollisionTranslation.value[i - 1],
@@ -673,7 +701,7 @@ def createScene(rootNode):
     scene.addObject('RuleBasedContactManager', responseParams="mu=" + str(frictionCoef),
                     name='Response', response='FrictionContactConstraint')
     scene.addObject('LocalMinDistance',
-                    alarmDistance=1.5, contactDistance=0.3,
+                    alarmDistance=1, contactDistance=0.2,
                     angleCone=0.01)
     scene.addObject('FreeMotionAnimationLoop', parallelCollisionDetectionAndFreeMotion=True, parallelODESolving=True)
     scene.addObject('GenericConstraintSolver', tolerance=1e-6, maxIterations=2000,
@@ -705,7 +733,7 @@ def createScene(rootNode):
     box2 = FixingBox(scene.Simulation,
                      scene.Simulation.Intestine.MechanicalModel,
                      name="box2",
-                     translation=[5, -60, 28],
+                     translation=[5, -65, 28],
                      scale=[30., 30., 30.])
     box2.BoxROI.drawBoxes = True
 
