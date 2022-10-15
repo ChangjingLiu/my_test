@@ -7,7 +7,8 @@ Step 7:
 
 '''
 import os, sys
-
+if os.path.exists("result/a.txt"):
+    os.remove("result/a.txt") # 删除压力数据
 sys.path.append(
     "D:\\sofa\\DefrostSofaBundle_win64_python3.8_v22.06.00-beta4\\plugins\\STLIB\\lib\\python3\\site-packages")
 import Sofa.Core
@@ -91,6 +92,7 @@ class EmptyController(Sofa.Core.Controller):
         self.d = 0.01
         self.steppressure = 10
         self.initFlag = 0
+        self.step=0
 
     # Default BaseObject functions********************************
     def init(self):
@@ -177,7 +179,7 @@ class EmptyController(Sofa.Core.Controller):
 
         # 对每个传感器进行计算
         f_tmp = np.zeros((10, 3))
-        f = np.zeros(10)
+        f = np.zeros((1,10))
         for n in range(0, 10, 1):
             constraint = self.Constraints[n].value
             Sensor_pos = quat_rot(self.Sensors[n].position.value[0][3:7])
@@ -207,19 +209,29 @@ class EmptyController(Sofa.Core.Controller):
                         f_tmp[n] += np.matmul(Sensor_pos, force).T[0]
                         # 不左乘旋转矩阵
                         # f_tmp[n] += force.T[0]
-        f[0] = f_tmp[0][2]
-        f[1] = f_tmp[1][0]
-        f[2] = f_tmp[2][2]
-        f[3] = f_tmp[3][0]
-        f[4] = f_tmp[4][2]
-        f[5] = f_tmp[5][0]
-        f[6] = f_tmp[6][2]
-        f[7] = f_tmp[7][0]
-        f[8] = f_tmp[8][2]
-        f[9] = f_tmp[9][2]
+        f[0][0] = f_tmp[0][2]
+        f[0][1] = f_tmp[1][0]
+        f[0][2] = f_tmp[2][2]
+        f[0][3] = f_tmp[3][0]
+        f[0][4] = f_tmp[4][2]
+        f[0][5] = f_tmp[5][0]
+        f[0][6] = f_tmp[6][2]
+        f[0][7] = f_tmp[7][0]
+        f[0][8] = f_tmp[8][2]
+        f[0][9] = f_tmp[9][2]
 
-        print(f_tmp)
+        print(f)
+        print(self.scene.dt.value)
+        print(self.scene.time.value)
+        # np.savetxt("result/a.txt",f,fmt="%.5e")
+        # if (self.scene.time.value!=0. and self.scene.time.value/self.scene.time.value)%10 == 0:
+
+        if self.step%10==0:
+            with open("result/a.txt", "ab") as f1:
+                np.savetxt(f1, f,fmt="%.5e")
         print("\n")
+
+        self.step = self.step + 1
 
         pass
 
