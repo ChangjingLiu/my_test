@@ -596,7 +596,7 @@ def Intestinev5(name="Intestine", rotation=None, translation=None, color=None):
 
     mechanicalmodel.addObject('UniformMass',
                               name="mass",
-                              totalMass=10)
+                              totalMass=0.5)
     # 有限元组件FEM ForceField components
     # mechanicalmodel.addObject(
     #     # 'TetrahedronFEMForceField',
@@ -613,7 +613,7 @@ def Intestinev5(name="Intestine", rotation=None, translation=None, color=None):
         name="HyperElasticMaterial",
         materialName="NeoHookean",
         AnisotropyDirections=[0,0,0],
-        ParameterSet=[27104, 149900]
+        ParameterSet=[27.104, 149.900]
         # ParameterSet = [27104, 149900]
     )
     # mechanicalmodel.addObject("MeshSpringForceField",name="Springs",stiffness=10,damping=1 )
@@ -710,17 +710,17 @@ def Intestinev5(name="Intestine", rotation=None, translation=None, color=None):
 
     return self
 def createScene(rootNode):
-    scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0], dt=0.0001,
+    scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0], dt=0.01,
                   plugins=['SofaSparseSolver', 'SofaOpenglVisual'],
                   iterative=False
                   )
     scene.addMainHeader()
     scene.addObject('DefaultAnimationLoop')
     scene.addObject('DefaultVisualManagerLoop')
-    # scene.Settings.mouseButton.stiffness = 1
+    scene.Settings.mouseButton.stiffness = 1
     scene.VisualStyle.displayFlags = "showBehavior showCollision"
 
-    scene.Simulation.addChild(Intestinev2())
+    scene.Simulation.addChild(Intestinev5())
     box1 = FixingBox(scene.Simulation,
                      scene.Simulation.Intestine.MechanicalModel,
                      name="box1",

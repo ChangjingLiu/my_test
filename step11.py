@@ -9,8 +9,8 @@ Step 7:
 import os, sys
 if os.path.exists("result/a.txt"):
     os.remove("result/a.txt") # 删除压力数据
-sys.path.append(
-    "D:\\sofa\\DefrostSofaBundle_win64_python3.8_v22.06.00-beta4\\plugins\\STLIB\\lib\\python3\\site-packages")
+# sys.path.append(
+#     "D:\\sofa\\DefrostSofaBundle_win64_python3.8_v22.06.00-beta4\\plugins\\STLIB\\lib\\python3\\site-packages")
 import Sofa.Core
 from stlib3.scene import Scene
 import numpy as np
@@ -91,7 +91,7 @@ class EmptyController(Sofa.Core.Controller):
         self.stepsize = 0.005
         self.d = 0.01
         self.steppressure = 10
-        self.initFlag = 0
+        self.initFlag = 0.5
         self.step=0
 
     # Default BaseObject functions********************************
@@ -106,28 +106,30 @@ class EmptyController(Sofa.Core.Controller):
             self.intestineCollision.SurfacePressureForceField.pressure.value -= 0.5
             if self.intestineCollision.SurfacePressureForceField.pressure.value < -450:
                 self.initFlag = 0.5
+
         if self.initFlag == 0.5:
             with self.scene.Simulation.Robot.Articulation.ArmWheel.dofs.position.writeableArray() as pos:
                 for p in pos:
-                    p[0] += 0.05
-                if pos[0][0]>4:
+                    p[0] += 0.08
+                if pos[0][0]>7:
                     self.initFlag =0.65
                     for i in range(5, 9, 1):
                         self.Sensorslist.getChild(
-                            "Sensor" + str(i)).CollisionModel.LineCollisionModel.contactStiffness = 1e7
+                            "Sensor" + str(i)).CollisionModel.LineCollisionModel.contactStiffness = 1e20
                         self.Sensorslist.getChild(
-                            "Sensor" + str(i)).CollisionModel.TriangleCollisionModel.contactStiffness = 1e7
+                            "Sensor" + str(i)).CollisionModel.TriangleCollisionModel.contactStiffness = 1e20
         if self.initFlag == 0.65:
             with self.scene.Simulation.Robot.Articulation.ArmWheel.dofs.position.writeableArray() as pos:
                 for p in pos:
-                    p[0] -= 0.05
-                if pos[0][0]<-4:
+                    p[0] -= 0.08
+                if pos[0][0]<-7:
                     self.initFlag =0.75
                     for i in range(1, 11, 1):
                         self.Sensorslist.getChild(
                             "Sensor" + str(i)).CollisionModel.LineCollisionModel.contactStiffness = 1e7
                         self.Sensorslist.getChild(
                             "Sensor" + str(i)).CollisionModel.TriangleCollisionModel.contactStiffness = 1e7
+
         if self.initFlag == 0.75:
             with self.scene.Simulation.Robot.Articulation.ArmWheel.dofs.position.writeableArray() as pos:
                 for p in pos:
@@ -141,6 +143,7 @@ class EmptyController(Sofa.Core.Controller):
             self.initFlag=1
 
         if self.initFlag == 1:
+
             self.ServoMotor.angleIn[1] -= 0.0005
             theta1 = np.pi - self.ServoMotor.angleIn[1]
             theta24 = getAngle(11.01 / 2, 30.58, 26.41, np.pi - self.ServoMotor.angleIn[1])
@@ -168,8 +171,10 @@ class EmptyController(Sofa.Core.Controller):
             self.ServoMotor.angleIn[2] = np.pi - 2 * (np.pi * 2 - np.pi / 2 - theta24 - theta1)
             self.ServoMotor.angleIn[3] = self.ServoMotor.angleIn[1]
 
-            if self.ServoMotor.angleIn[1] < 0.34:
+            if self.ServoMotor.angleIn[1] < 0.19:
+                self.scene.gravity[1] = -9810
                 self.initFlag = 5
+
 
 
         # 计算传感器的力
@@ -226,7 +231,7 @@ class EmptyController(Sofa.Core.Controller):
         # np.savetxt("result/a.txt",f,fmt="%.5e")
         # if (self.scene.time.value!=0. and self.scene.time.value/self.scene.time.value)%10 == 0:
 
-        if self.step%10==0:
+        if self.step>0:
             with open("result/a.txt", "ab") as f1:
                 np.savetxt(f1, f,fmt="%.5e")
         print("\n")
@@ -253,24 +258,24 @@ class EmptyController(Sofa.Core.Controller):
             print(self.intestineCollision.SurfacePressureForceField.pressure.value)
             print("You pressed the 4 key")
         if ord(key) == 53:
-            self.intestineCollisionInner.SurfacePressureForceField.pressure.value += self.steppressure
-            self.intestineCollisionInner.pressure1.pressure.value += self.steppressure
+            self.intestineCollisionInner.SurfacePressureForceField.pressure.value += 0.01
+            # self.intestineCollisionInner.pressure1.pressure.value += 0.01
 
             print(self.intestineCollisionInner.SurfacePressureForceField.pressure.value)
             print("You pressed the 5 key")
         if ord(key) == 54:
-            self.intestineCollisionInner.SurfacePressureForceField.pressure.value -= self.steppressure
-            self.intestineCollisionInner.pressure1.pressure.value -= self.steppressure
+            self.intestineCollisionInner.SurfacePressureForceField.pressure.value -= 0.01
+            # self.intestineCollisionInner.pressure1.pressure.value -= 0.01
 
             print(self.intestineCollisionInner.SurfacePressureForceField.pressure.value)
             print("You pressed the 6 key")
         if ord(key) == 55:
-            self.intestineCollisionInner.pressure1.pressure.value += self.steppressure
+            self.intestineCollisionInner.pressure1.pressure.value += 0.01
 
             print(self.intestineCollisionInner.SurfacePressureForceField.pressure.value)
             print("You pressed the 7 key")
         if ord(key) == 56:
-            self.intestineCollisionInner.pressure1.pressure.value -= self.steppressure
+            self.intestineCollisionInner.pressure1.pressure.value -= 0.01
 
             print(self.intestineCollisionInner.SurfacePressureForceField.pressure.value)
             print("You pressed the 8 key")
@@ -696,7 +701,7 @@ class ServoMotor(Sofa.Prefab):
 def createScene(rootNode):
     import math
     from splib3.animation import animate
-    scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0], dt=0.0001,
+    scene = Scene(rootNode, gravity=[0.0, 0.0, 0.0], dt=0.0005,
                   plugins=['SofaSparseSolver', 'SofaOpenglVisual', 'SofaSimpleFem', 'SofaDeformable', 'SofaEngine',
                            'SofaGraphComponent', 'SofaRigid', 'SoftRobots'],
                   iterative=False
