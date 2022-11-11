@@ -654,8 +654,8 @@ class ServoMotor(Sofa.Prefab):
         for i in range(0, 6, 1):
             arm = self.addChild(
                 CreateArm(name=self.armsList.value[i],
-                          filepath='data/Ass_robot/sofa_model/' + self.armsList.value[i] + '.STL',
-                          file1path='data/Ass_robot/sofa_model/' + self.armsList.value[i] + '_p1.STL',
+                          filepath='data/ASS_robot/sofa_model/' + self.armsList.value[i] + '.STL',
+                          file1path='data/ASS_robot/sofa_model/' + self.armsList.value[i] + '_p1.STL',
                           visiontranslation=self.visionTranslation.value[i], mappingIndex=1))
             # 1-1 2-2 3-3 4-4 5-1 5-2
             mappingindex = i + 1
@@ -672,7 +672,7 @@ class ServoMotor(Sofa.Prefab):
         for i in range(1, 11, 1):
             sensor = sensors.addChild(
                 CreateSensor(name='Sensor' + str(i),
-                             filepath='data/Ass_robot/sofa_model/sensor_surface.stl',
+                             filepath='data/ASS_robot/sofa_model/sensor_surface.stl',
                              # translation=list(self.translation.value),
                              rotation=self.sensorRotation.value[i - 1],
                              collisiontranslation=self.sensorCollisionTranslation.value[i - 1],
