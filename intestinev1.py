@@ -707,6 +707,25 @@ def Intestinev5(name="Intestine", rotation=None, translation=None, color=None):
                              # pressureSpeed=0.1
                              mainDirection=[1, 0, 0],
                              )
+    # Visual model 视觉模型用stl会好看些
+    translation[1] = translation[1] + 25;
+    visualmodel = Sofa.Core.Node("VisualModel")
+    # Specific loader for the visual model
+    visualmodel.addObject('MeshGmshLoader',
+                          name='loader',
+                          filename='data/Intestine/IntestineV5-Tube.msh',
+                          rotation=rotation,
+                          translation=translation,
+                          )
+    visualmodel.addObject('OglModel',
+                          src=visualmodel.loader.getLinkPath(),
+                          name='renderer',
+                          color=[255/255, 177/255, 176/255, 1])
+    self.addChild(visualmodel)
+
+    visualmodel.addObject('BarycentricMapping',
+                          input=mechanicalmodel.dofs.getLinkPath(),
+                          output=visualmodel.renderer.getLinkPath())
 
     return self
 def createScene(rootNode):
@@ -732,8 +751,8 @@ def createScene(rootNode):
                      translation=[0.0, -110.0, 0.0],
                      scale=[50., 50., 50.])
 
-    box1.BoxROI.drawBoxes = True
-    box2.BoxROI.drawBoxes = True
+    # box1.BoxROI.drawBoxes = True
+    # box2.BoxROI.drawBoxes = True
     scene.Simulation.addChild(scene.Simulation.box1)
     scene.Simulation.addChild(scene.Simulation.box2)
 
