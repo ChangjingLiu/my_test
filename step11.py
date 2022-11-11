@@ -160,7 +160,7 @@ class EmptyController(Sofa.Core.Controller):
         if self.initFlag == 3:
             with self.scene.Simulation.Robot.Articulation.ArmWheel.dofs.position.writeableArray() as pos:
                 for p in pos:
-                    p[2] -= 0.1
+                    p[2] -= 0.01
                 if pos[0][2]<-0.4:
                     self.initFlag =4
         if self.initFlag == 4:
